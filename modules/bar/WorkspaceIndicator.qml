@@ -18,8 +18,8 @@ Row {
         Text {
             text: index + 1
             color: index + 1 === workspaces.current ? Color.activeWorkspace : Color.inactiveWorkspace
-            font.family: BarConfig.fontFamily
-            font.pixelSize: BarConfig.fontSize
+            font.family: Style.font.family
+            font.pixelSize: Style.font.title
             verticalAlignment: Text.AlignVCenter
         }
     }

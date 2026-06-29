@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Quickshell
 import "../../../Commons"
 import "../../../services"
+import "../../../utils"
 import ".."
 
 PopupWindow {
@@ -36,26 +37,8 @@ PopupWindow {
         }
 
         // Header: Icon + Percentage
-        RowLayout {
+        BatteryInfo {
             Layout.fillWidth: true
-            spacing: 12
-
-            Text {
-                text: Battery.statusIcon()
-                color: Color.text
-                font.family: BarConfig.fontFamily
-                font.pixelSize: 40
-            }
-
-            Item { Layout.fillWidth: true }
-
-            Text {
-                text: Math.round(Battery.percentage * 100) + "%"
-                color: Color.text
-                font.family: BarConfig.fontFamily
-                font.pixelSize: 32
-                font.bold: true
-            }
         }
 
         // Battery bar
@@ -67,7 +50,7 @@ PopupWindow {
             Rectangle {
                 width: parent.width * Battery.percentage
                 height: parent.height
-                color: Battery.charging ? "#888888" : "#ffffff"
+                color: Battery.charging ? "#888888" : Color.text
             }
         }
 
@@ -79,8 +62,8 @@ PopupWindow {
             Text {
                 text: "Battery size " + Math.round(Battery.energyCapacity) + "Wh"
                 color: Color.text
-                font.family: BarConfig.fontFamily
-                font.pixelSize: 10
+                font.family: Style.font.family
+                font.pixelSize: Style.font.caption
             }
 
             Item { Layout.fillWidth: true }
@@ -99,8 +82,8 @@ PopupWindow {
                     return "Time left: --";
                 }
                 color: Color.text
-                font.family: BarConfig.fontFamily
-                font.pixelSize: 10
+                font.family: Style.font.family
+                font.pixelSize: Style.font.caption
             }
         }
 
@@ -112,8 +95,8 @@ PopupWindow {
             Text {
                 text: "Threshold 95-100%"
                 color: Color.text
-                font.family: BarConfig.fontFamily
-                font.pixelSize: 10
+                font.family: Style.font.family
+                font.pixelSize: Style.font.caption
             }
 
             Item { Layout.fillWidth: true }
@@ -121,8 +104,8 @@ PopupWindow {
             Text {
                 text: (Battery.charging ? "Charging" : "Discharging") + " " + Math.abs(Battery.changeRate).toFixed(1) + "W"
                 color: Color.text
-                font.family: BarConfig.fontFamily
-                font.pixelSize: 10
+                font.family: Style.font.family
+                font.pixelSize: Style.font.caption
             }
         }
 
@@ -137,62 +120,14 @@ PopupWindow {
         Text {
             text: "Power Profile"
             color: Color.text
-            font.family: BarConfig.fontFamily
-            font.pixelSize: 16
+            font.family: Style.font.family
+            font.pixelSize: Style.font.heading
             font.bold: true
         }
 
         // Power profile buttons
-        RowLayout {
+        PowerProfileSelector {
             Layout.fillWidth: true
-            spacing: 12
-
-            Repeater {
-                model: [
-                    { name: "power-saver", label: "Power Saver", icon: "\uf0e7" },
-                    { name: "balanced", label: "Balanced", icon: "\uf0e8" },
-                    { name: "performance", label: "Performance", icon: "\uf135" }
-                ]
-
-                Rectangle {
-                    property string profileName: modelData.name
-                    property bool isActive: PowerProfile.activeProfile === profileName
-
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 40
-                    radius: 8
-                    color: isActive ? "#ffffff" : (btnArea.containsMouse ? "#333333" : "#1a1a1a")
-                    border.color: "#444444"
-                    border.width: 1
-
-                    RowLayout {
-                        anchors.centerIn: parent
-                        spacing: 8
-
-                        Text {
-                            text: modelData.icon
-                            color: isActive ? "#000000" : Color.text
-                            font.family: BarConfig.fontFamily
-                            font.pixelSize: 14
-                        }
-
-                        Text {
-                            text: modelData.label
-                            color: isActive ? "#000000" : Color.text
-                            font.family: BarConfig.fontFamily
-                            font.pixelSize: 12
-                        }
-                    }
-
-                    MouseArea {
-                        id: btnArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: PowerProfile.setProfile(profileName)
-                    }
-                }
-            }
         }
     }
 

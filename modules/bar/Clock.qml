@@ -13,8 +13,8 @@ Text {
 
     text: showDate ? Time.expandedDate() : time
     color: BarConfig.textColor
-    font.family: BarConfig.fontFamily
-    font.pixelSize: BarConfig.fontSize
+    font.family: Style.font.family
+    font.pixelSize: Style.font.title
     verticalAlignment: Text.AlignVCenter
 
     MouseArea {

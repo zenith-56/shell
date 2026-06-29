@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import "../../../Commons"
 import "../../../services"
+import "../../../utils"
 
 ColumnLayout {
     id: batteryHealth
@@ -19,20 +20,18 @@ ColumnLayout {
     RowLayout {
         spacing: 8
 
-        // Health icon
         Text {
-            text: "󰂀"  // nf-md-heart
-            color: BarConfig.textColor
-            font.family: BarConfig.fontFamily
-            font.pixelSize: 16
+            text: Icons.heart
+            color: Color.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.heading
         }
 
-        // Health label and value
         Text {
             text: "Health: " + Math.round(batteryHealth.healthPercentage) + "%"
-            color: BarConfig.textColor
-            font.family: BarConfig.fontFamily
-            font.pixelSize: 14
+            color: Color.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.title
         }
     }
 
@@ -40,20 +39,18 @@ ColumnLayout {
     RowLayout {
         spacing: 8
 
-        // Battery icon
         Text {
-            text: "󰁹"  // nf-md-battery
-            color: BarConfig.textColor
-            font.family: BarConfig.fontFamily
-            font.pixelSize: 16
+            text: Icons.battery
+            color: Color.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.heading
         }
 
-        // Energy label and value
         Text {
             text: "Capacity: " + batteryHealth.energy.toFixed(1) + " / " + batteryHealth.energyCapacity.toFixed(1) + " Wh"
-            color: BarConfig.textColor
-            font.family: BarConfig.fontFamily
-            font.pixelSize: 14
+            color: Color.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.title
         }
     }
 
@@ -61,20 +58,18 @@ ColumnLayout {
     RowLayout {
         spacing: 8
 
-        // Device icon
         Text {
-            text: "󰦀"  // nf-md-laptop
-            color: BarConfig.textColor
-            font.family: BarConfig.fontFamily
-            font.pixelSize: 16
+            text: Icons.laptop
+            color: Color.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.heading
         }
 
-        // Model label and value
         Text {
             text: "Model: " + batteryHealth.model
-            color: BarConfig.textColor
-            font.family: BarConfig.fontFamily
-            font.pixelSize: 14
+            color: Color.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.title
         }
     }
 }

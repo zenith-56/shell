@@ -3,7 +3,7 @@
 pragma Singleton
 import QtQuick
 
-Singleton {
+QtObject {
     id: root
 
     // Base config directory (e.g., ~/.config)

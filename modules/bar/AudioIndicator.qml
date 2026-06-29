@@ -3,6 +3,7 @@
 import QtQuick
 import "../../Commons"
 import "../../services"
+import "../../utils"
 import "audio"
 
 Item {
@@ -11,16 +12,13 @@ Item {
     width: iconText.implicitWidth
     height: iconText.implicitHeight
 
-    // Volume icon using Nerd Font glyphs
+    // Volume icon using centralized Icons
     Text {
         id: iconText
-        text: Audio.muted || Audio.volume === 0 ? "\uf00d"     // nf-fa-volume_off
-            : Audio.volume < 0.33 ? "\uf026"                    // nf-fa-volume_down
-            : Audio.volume < 0.66 ? "\uf027"                    // nf-fa-volume_low
-            : "\uf028"                                          // nf-fa-volume_high
+        text: Icons.volumeIcon(Audio.muted, Audio.volume)
         color: BarConfig.textColor
-        font.family: BarConfig.fontFamily
-        font.pixelSize: BarConfig.fontSize
+        font.family: Style.font.family
+        font.pixelSize: Style.font.title
         verticalAlignment: Text.AlignVCenter
     }
 

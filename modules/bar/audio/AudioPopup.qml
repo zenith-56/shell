@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Quickshell
 import "../../../Commons"
 import "../../../services"
+import "../../../utils"
 
 PopupWindow {
     id: audioOsd
@@ -34,8 +35,8 @@ PopupWindow {
     // Content container - single row
     RowLayout {
         anchors.fill: parent
-        anchors.margins: 12
-        spacing: 12
+        anchors.margins: Style.spacing.lg
+        spacing: Style.spacing.lg
 
         Keys.onEscapePressed: {
             audioOsd.hide();
@@ -43,13 +44,10 @@ PopupWindow {
 
         // Volume icon
         Text {
-            text: Audio.muted || Audio.volume === 0 ? "\uf00d"
-                : Audio.volume < 0.33 ? "\uf026"
-                : Audio.volume < 0.66 ? "\uf027"
-                : "\uf028"
+            text: Icons.volumeIcon(Audio.muted, Audio.volume)
             color: Color.text
-            font.family: BarConfig.fontFamily
-            font.pixelSize: 14
+            font.family: Style.font.family
+            font.pixelSize: Style.font.title
             Layout.alignment: Qt.AlignVCenter
         }
 
@@ -64,7 +62,7 @@ PopupWindow {
             Rectangle {
                 width: parent.width * Audio.volume
                 height: parent.height
-                color: Audio.muted ? Color.divider : "#ffffff"
+                color: Audio.muted ? Color.divider : Color.text
             }
         }
 
@@ -72,8 +70,8 @@ PopupWindow {
         Text {
             text: Audio.muted ? "Mute" : Math.round(Audio.volume * 100) + "%"
             color: Color.text
-            font.family: BarConfig.fontFamily
-            font.pixelSize: 11
+            font.family: Style.font.family
+            font.pixelSize: Style.font.bodySmall
             Layout.alignment: Qt.AlignVCenter
             Layout.minimumWidth: 36
         }

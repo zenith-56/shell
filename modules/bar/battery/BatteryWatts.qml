@@ -1,6 +1,5 @@
 // Battery power display component.
 // Shows power consumption/charging rate in watts.
-// Negative when discharging, positive when charging.
 import QtQuick
 import QtQuick.Layouts
 import "../../../Commons"
@@ -14,15 +13,13 @@ RowLayout {
 
     spacing: 8
 
-    // Power icon
     Text {
         text: "󰂄"  // nf-md-lightning_bolt
-        color: BarConfig.textColor
-        font.family: BarConfig.fontFamily
-        font.pixelSize: 16
+        color: Color.text
+        font.family: Style.font.family
+        font.pixelSize: Style.font.heading
     }
 
-    // Watts value — negative when discharging, positive when charging
     Text {
         text: {
             var watts = Math.abs(batteryWatts.changeRate);
@@ -30,8 +27,8 @@ RowLayout {
             var sign = batteryWatts.charging ? "+" : "-";
             return sign + watts.toFixed(1) + " W";
         }
-        color: BarConfig.textColor
-        font.family: BarConfig.fontFamily
-        font.pixelSize: 14
+        color: Color.text
+        font.family: Style.font.family
+        font.pixelSize: Style.font.title
     }
 }

@@ -36,19 +36,4 @@ Singleton {
     }
     // Device model name
     property string model: UPower.displayDevice ? (UPower.displayDevice.model || UPower.displayDevice.nativePath || "Unknown") : "Unknown"
-
-    // Returns a Nerd Font glyph based on current charge level
-    function statusIcon(): string {
-        if (!available)
-            return "󱃌"; // nf-md-battery_outline — no battery detected
-        if (charging)
-            return ""; // nf-md-battery_charging — charging state
-        if (percentage > 0.75)
-            return ""; // nf-md-battery — full/high charge
-        if (percentage > 0.50)
-            return ""; // nf-md-battery_60 — medium charge
-        if (percentage > 0.25)
-            return ""; // nf-md-battery_10 — critical charge
-        return ""; // nf-md-battery_10 — critical charge
-    }
 }

@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import "../../../Commons"
 import "../../../services"
+import "../../../utils"
 
 ColumnLayout {
     id: batteryInfo
@@ -15,19 +16,19 @@ ColumnLayout {
 
     // Large battery icon
     Text {
-        text: Battery.statusIcon()
-        color: BarConfig.textColor
-        font.family: BarConfig.fontFamily
-        font.pixelSize: 48
+        text: Icons.batteryIcon(Battery.available, Battery.charging, Battery.percentage)
+        color: Color.text
+        font.family: Style.font.family
+        font.pixelSize: Style.font.iconLarge
         Layout.alignment: Qt.AlignHCenter
     }
 
     // Percentage text
     Text {
         text: Math.round(percentage * 100) + "%"
-        color: BarConfig.textColor
-        font.family: BarConfig.fontFamily
-        font.pixelSize: 24
+        color: Color.text
+        font.family: Style.font.family
+        font.pixelSize: Style.font.large
         font.bold: true
         Layout.alignment: Qt.AlignHCenter
     }
@@ -36,8 +37,8 @@ ColumnLayout {
     Text {
         text: charging ? "Charging" : "Discharging"
         color: Color.text
-        font.family: BarConfig.fontFamily
-        font.pixelSize: 12
+        font.family: Style.font.family
+        font.pixelSize: Style.font.body
         Layout.alignment: Qt.AlignHCenter
     }
 }

@@ -3,25 +3,26 @@
 import QtQuick
 import "../../Commons"
 import "../../services"
+import "../../utils"
 import "battery"
 
 Item {
     id: battery
 
-    property bool available: Battery.available    // Battery present
-    property real percentage: Battery.percentage  // Charge level (0-1)
-    property bool charging: Battery.charging      // Charging state
+    property bool available: Battery.available
+    property real percentage: Battery.percentage
+    property bool charging: Battery.charging
 
     width: iconText.implicitWidth
     height: iconText.implicitHeight
 
-    // Battery icon from Battery service
+    // Battery icon using centralized Icons
     Text {
         id: iconText
-        text: Battery.statusIcon()
+        text: Icons.batteryIcon(Battery.available, Battery.charging, Battery.percentage)
         color: BarConfig.textColor
-        font.family: BarConfig.fontFamily
-        font.pixelSize: BarConfig.fontSize + 4
+        font.family: Style.font.family
+        font.pixelSize: Style.font.title + 4
         verticalAlignment: Text.AlignVCenter
     }
 
