@@ -32,14 +32,16 @@ Singleton {
     property Process volumeProc: Process {
         id: volumeProc
         command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
-        stdout: SplitParser {
-            onRead: function(line) {
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                var output = text;
                 // Parse "Volume: 0.50" or "Volume: 0.50 [MUTED]"
-                var match = line.match(/Volume:\s+([\d.]+)/);
+                var match = output.match(/Volume:\s+([\d.]+)/);
                 if (match) {
                     root.volume = parseFloat(match[1]);
                 }
-                root.muted = line.includes("[MUTED]");
+                root.muted = output.includes("[MUTED]");
             }
         }
     }

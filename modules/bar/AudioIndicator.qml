@@ -8,18 +8,15 @@ import "../../services"
 Item {
     id: audio
 
-    property real volume: Audio.volume
-    property bool muted: Audio.muted
-
     width: iconText.implicitWidth
     height: iconText.implicitHeight
 
     // Volume icon using Nerd Font glyphs
     Text {
         id: iconText
-        text: audio.muted || audio.volume === 0 ? "\uf00d"     // nf-fa-volume_off
-            : audio.volume < 0.33 ? "\uf026"                    // nf-fa-volume_down
-            : audio.volume < 0.66 ? "\uf027"                    // nf-fa-volume_low
+        text: Audio.muted || Audio.volume === 0 ? "\uf00d"     // nf-fa-volume_off
+            : Audio.volume < 0.33 ? "\uf026"                    // nf-fa-volume_down
+            : Audio.volume < 0.66 ? "\uf027"                    // nf-fa-volume_low
             : "\uf028"                                          // nf-fa-volume_high
         color: BarConfig.textColor
         font.family: BarConfig.fontFamily
