@@ -1,5 +1,5 @@
 // Audio OSD component.
-// Shows a vertical volume bar when volume changes.
+// Shows a horizontal volume bar when volume changes.
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -10,12 +10,11 @@ PopupWindow {
     id: audioOsd
 
     property bool isOpen: false
-    property real lastVolume: 0
 
     visible: isOpen
     grabFocus: true
-    implicitWidth: 40
-    implicitHeight: 200
+    implicitWidth: 160
+    implicitHeight: 60
 
     color: "transparent"
 
@@ -32,20 +31,29 @@ PopupWindow {
         onTriggered: audioOsd.hide()
     }
 
+    // Background box
+    Rectangle {
+        anchors.fill: contentArea
+        color: Color.background
+        radius: 8
+    }
+
     // Content container
-    Item {
-        anchors.fill: parent
-        anchors.margins: 8
+    RowLayout {
+        id: contentArea
+        anchors.centerIn: parent
+        width: 140
+        height: 44
+        spacing: 10
+        anchors.margins: 12
 
         Keys.onEscapePressed: {
             audioOsd.hide();
         }
 
-        // Volume icon at top
+        // Volume icon
         Text {
             id: iconText
-            anchors.top: parent.top
-            anchors.horizontalCenter: parent.horizontalCenter
             text: Audio.muted || Audio.volume === 0 ? "\uf00d"
                 : Audio.volume < 0.33 ? "\uf026"
                 : Audio.volume < 0.66 ? "\uf027"
@@ -53,26 +61,23 @@ PopupWindow {
             color: Color.text
             font.family: BarConfig.fontFamily
             font.pixelSize: 16
+            Layout.alignment: Qt.AlignVCenter
         }
 
-        // Vertical bar background
+        // Horizontal bar background
         Rectangle {
-            id: barBg
-            anchors.top: iconText.bottom
-            anchors.topMargin: 8
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: 8
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.alignment: Qt.AlignVCenter
             radius: 4
             color: Color.divider
 
             // Filled portion
             Rectangle {
-                width: parent.width
-                height: parent.height * Audio.volume
+                width: parent.width * Audio.volume
+                height: parent.height
                 radius: parent.radius
                 color: Audio.muted ? Color.divider : Color.accent
-                anchors.bottom: parent.bottom
             }
         }
     }
