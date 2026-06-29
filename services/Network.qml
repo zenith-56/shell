@@ -1,8 +1,8 @@
 // Network service singleton.
-// Polls network status and provides connection info and signal icons.
-// TODO: Integrate with NetworkManager via nmcli process execution.
+// Polls NetworkManager via nmcli to expose connection state and signal icons.
 pragma Singleton
 import Quickshell
+import Quickshell.Io
 import QtQuick
 
 Singleton {
@@ -15,14 +15,14 @@ Singleton {
     property int signalStrength: 0         // Signal strength percentage (0-100)
     property string state: "disconnected"  // Connection state string
 
-    // Returns an icon name based on connection type and signal strength
+    // Returns a Nerd Font glyph based on connection type and signal strength
     function statusIcon(): string {
-        if (!connected) return "network-disconnected"            // No connection
-        if (!wifi) return "network-wired"                        // Wired connection
-        if (signalStrength > 75) return "network-wireless-excellent"  // Strong signal
-        if (signalStrength > 50) return "network-wireless-good"       // Good signal
-        if (signalStrength > 25) return "network-wireless-fair"       // Fair signal
-        return "network-wireless-weak"                                 // Weak signal
+        if (!connected) return "󰤭";                    // nf-md-wifi_off — no connection
+        if (!wifi) return "";                        // nf-md-ethernet — wired connection
+        if (signalStrength > 75) return "󰤨";           // nf-md-wifi — excellent signal
+        if (signalStrength > 50) return "󰤥";           // nf-md-wifi — good signal
+        if (signalStrength > 25) return "󰤢";           // nf-md-wifi — fair signal
+        return "󰤟";                                    // nf-md-wifi — weak signal
     }
 
     // Polls every 10 seconds for network status changes
@@ -31,13 +31,74 @@ Singleton {
         running: true
         repeat: true
         triggeredOnStart: true
-        onTriggered: root._update()
+        onTriggered: {
+            stateProc.exec(["nmcli", "-t", "-f", "STATE", "general"]);
+            deviceProc.exec(["nmcli", "-t", "-f", "TYPE,STATE,CONNECTION", "device"]);
+        }
     }
 
-    // Internal: read network state from NetworkManager via nmcli
-    // FIXME: Not yet implemented — needs process execution
-    function _update(): void {
-        // Read from NetworkManager via nmcli
-        // Will be populated by process execution
+    // Reads overall NetworkManager state (connected/disconnected)
+    Process {
+        id: stateProc
+        command: ["nmcli", "-t", "-f", "STATE", "general"]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                var val = this.text.trim();
+                root.connected = val === "connected";
+                root.state = val;
+            }
+        }
+    }
+
+    // Reads device types and connection names to detect WiFi vs wired
+    Process {
+        id: deviceProc
+        command: ["nmcli", "-t", "-f", "TYPE,STATE,CONNECTION", "device"]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                var lines = this.text.trim().split("\n");
+                root.wifi = false;
+                root.ssid = "";
+
+                for (var i = 0; i < lines.length; i++) {
+                    var parts = lines[i].split(":");
+                    if (parts.length >= 3 && parts[1] === "connected") {
+                        if (parts[0] === "wifi") {
+                            root.wifi = true;
+                            root.ssid = parts[2];
+                        }
+                    }
+                }
+
+                if (root.wifi) {
+                    signalProc.exec(["nmcli", "-t", "-f", "IN-USE,SIGNAL", "device", "wifi", "list"]);
+                } else {
+                    root.signalStrength = 0;
+                }
+            }
+        }
+    }
+
+    // Reads WiFi signal strength for the currently connected network
+    Process {
+        id: signalProc
+        command: ["nmcli", "-t", "-f", "IN-USE,SIGNAL", "device", "wifi", "list"]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                var lines = this.text.trim().split("\n");
+                root.signalStrength = 0;
+
+                for (var i = 0; i < lines.length; i++) {
+                    var parts = lines[i].split(":");
+                    if (parts.length >= 2 && parts[0] === "*") {
+                        root.signalStrength = parseInt(parts[1]) || 0;
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
