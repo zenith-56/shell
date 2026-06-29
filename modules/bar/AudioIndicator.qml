@@ -1,5 +1,5 @@
 // Audio indicator widget for the status bar.
-// Shows a volume icon and opens popup on click.
+// Shows a volume icon and OSD popup on volume change.
 import QtQuick
 import "../../Commons"
 import "../../services"
@@ -24,21 +24,16 @@ Item {
         verticalAlignment: Text.AlignVCenter
     }
 
-    // Click to open popup
-    MouseArea {
-        anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
-        onClicked: {
-            if (audioPopup.isOpen) {
-                audioPopup.hide();
-            } else {
-                audioPopup.show(bar);
-            }
+    // Show OSD when volume changes
+    Connections {
+        target: Audio
+        function onVolumeChangedSignal() {
+            audioOsd.show(bar);
         }
     }
 
-    // Audio popup instance
+    // Audio OSD instance
     AudioPopup {
-        id: audioPopup
+        id: audioOsd
     }
 }

@@ -12,10 +12,14 @@ Singleton {
     property real volume: 0.5        // Current volume level (0.0 - 1.0)
     property bool muted: false       // Whether audio is muted
     property string sinkName: ""     // Name of the active audio sink
+    property real lastVolume: 0      // Previous volume for change detection
 
-    // Poll volume status every 1 second
+    // Emitted when volume changes
+    signal volumeChangedSignal()
+
+    // Poll volume status every 500ms for responsive OSD
     Timer {
-        interval: 1000
+        interval: 500
         running: true
         repeat: true
         onTriggered: root.updateVolume()
@@ -37,12 +41,20 @@ Singleton {
             waitForEnd: true
             onStreamFinished: {
                 var output = text;
-                // Parse "Volume: 0.50" or "Volume: 0.50 [MUTED]"
                 var match = output.match(/Volume:\s+([\d.]+)/);
                 if (match) {
-                    root.volume = parseFloat(match[1]);
+                    var newVol = parseFloat(match[1]);
+                    if (Math.abs(newVol - root.volume) > 0.001) {
+                        root.lastVolume = root.volume;
+                        root.volume = newVol;
+                        root.volumeChangedSignal();
+                    }
                 }
-                root.muted = output.includes("[MUTED]");
+                var newMuted = output.includes("[MUTED]");
+                if (newMuted !== root.muted) {
+                    root.muted = newMuted;
+                    root.volumeChangedSignal();
+                }
             }
         }
     }

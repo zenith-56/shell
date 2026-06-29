@@ -1,5 +1,5 @@
-// Audio popup component.
-// Displays volume control with large icon and level indicators.
+// Audio OSD component.
+// Shows a vertical volume bar when volume changes.
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -7,17 +7,17 @@ import "../../../Commons"
 import "../../../services"
 
 PopupWindow {
-    id: audioPopup
+    id: audioOsd
 
     property bool isOpen: false
-    property Item anchorItem: null
+    property real lastVolume: 0
 
     visible: isOpen
     grabFocus: true
-    implicitWidth: 240
+    implicitWidth: 40
     implicitHeight: 200
 
-    color: Color.background
+    color: "transparent"
 
     onVisibleChanged: {
         if (!visible) {
@@ -25,149 +25,61 @@ PopupWindow {
         }
     }
 
+    // Auto-hide timer
+    Timer {
+        id: hideTimer
+        interval: 2000
+        onTriggered: audioOsd.hide()
+    }
+
     // Content container
-    ColumnLayout {
+    Item {
         anchors.fill: parent
-        anchors.margins: 16
-        spacing: 16
+        anchors.margins: 8
 
         Keys.onEscapePressed: {
-            audioPopup.hide();
+            audioOsd.hide();
         }
 
-        // Large volume icon
-        Item {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 80
-
-            Text {
-                anchors.centerIn: parent
-                text: Audio.muted || Audio.volume === 0 ? "\uf00d"
-                    : Audio.volume < 0.33 ? "\uf026"
-                    : Audio.volume < 0.66 ? "\uf027"
-                    : "\uf028"
-                color: Color.text
-                font.family: BarConfig.fontFamily
-                font.pixelSize: 48
-            }
-        }
-
-        // Divider
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 1
-            color: Color.divider
-        }
-
-        // Volume percentage
+        // Volume icon at top
         Text {
-            Layout.fillWidth: true
-            text: Audio.muted ? "Muted" : Math.round(Audio.volume * 100) + "%"
+            id: iconText
+            anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: Audio.muted || Audio.volume === 0 ? "\uf00d"
+                : Audio.volume < 0.33 ? "\uf026"
+                : Audio.volume < 0.66 ? "\uf027"
+                : "\uf028"
             color: Color.text
             font.family: BarConfig.fontFamily
-            font.pixelSize: BarConfig.fontSize + 2
-            horizontalAlignment: Text.AlignHCenter
+            font.pixelSize: 16
         }
 
-        // Volume bar
+        // Vertical bar background
         Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 6
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
-            radius: 3
+            id: barBg
+            anchors.top: iconText.bottom
+            anchors.topMargin: 8
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 8
+            radius: 4
             color: Color.divider
 
+            // Filled portion
             Rectangle {
-                width: parent.width * Audio.volume
-                height: parent.height
+                width: parent.width
+                height: parent.height * Audio.volume
                 radius: parent.radius
                 color: Audio.muted ? Color.divider : Color.accent
-            }
-        }
-
-        // Volume buttons
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 36
-            spacing: 8
-
-            // Decrease button
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                radius: 6
-                color: decreaseArea.containsMouse ? Color.divider : "transparent"
-
-                Text {
-                    anchors.centerIn: parent
-                    text: "\uf068"  // nf-fa-minus
-                    color: Color.text
-                    font.family: BarConfig.fontFamily
-                    font.pixelSize: BarConfig.fontSize
-                }
-
-                MouseArea {
-                    id: decreaseArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: Audio.setVolume(Audio.volume - 0.05)
-                }
-            }
-
-            // Mute button
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                radius: 6
-                color: muteArea.containsMouse ? Color.divider : "transparent"
-
-                Text {
-                    anchors.centerIn: parent
-                    text: Audio.muted ? "\uf04b" : "\uf04c"  // nf-fa-play / nf-fa-pause
-                    color: Color.text
-                    font.family: BarConfig.fontFamily
-                    font.pixelSize: BarConfig.fontSize
-                }
-
-                MouseArea {
-                    id: muteArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: Audio.toggleMute()
-                }
-            }
-
-            // Increase button
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                radius: 6
-                color: increaseArea.containsMouse ? Color.divider : "transparent"
-
-                Text {
-                    anchors.centerIn: parent
-                    text: "\uf067"  // nf-fa-plus
-                    color: Color.text
-                    font.family: BarConfig.fontFamily
-                    font.pixelSize: BarConfig.fontSize
-                }
-
-                MouseArea {
-                    id: increaseArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: Audio.setVolume(Audio.volume + 0.05)
-                }
+                anchors.bottom: parent.bottom
             }
         }
     }
 
-    // Show popup centered below the bar
+    // Show OSD centered below the bar
     function show(anchorWindow) {
+        hideTimer.restart();
         anchor.window = anchorWindow;
         anchor.rect = Qt.rect(
             anchorWindow.width / 2 - implicitWidth / 2,
@@ -179,9 +91,9 @@ PopupWindow {
         visible = true;
     }
 
-    // Hide the popup
+    // Hide the OSD
     function hide() {
         isOpen = false;
-        visible = false;
+        visible = false
     }
 }
