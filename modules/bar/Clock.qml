@@ -11,8 +11,8 @@ Text {
 
     text: time
     color: BarConfig.textColor
-    font.pixelSize: 14
-    font.family: "monospace"
+    font.family: BarConfig.fontFamily
+    font.pixelSize: BarConfig.fontSize
     verticalAlignment: Text.AlignVCenter
 
     ToolTip.text: date

@@ -5,10 +5,10 @@
         "modules": ["clock", "workspaces", "battery", "network"]
     },
     "appearance": {
-        "backgroundColor": "#cc1e1e2e",
-        "textColor": "#cdd6f4",
+        "backgroundColor": "#cc000000",
+        "textColor": "#ffffff",
         "accentColor": "#89b4fa",
-        "font": "monospace",
+        "font": "FiraCode Nerd Font",
         "fontSize": 14
     }
 }

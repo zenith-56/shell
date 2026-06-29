@@ -7,9 +7,11 @@ Singleton {
 
     property int height: 32
     property string position: "top"
-    property color backgroundColor: "#cc1e1e2e"
-    property color textColor: "#cdd6f4"
-    property color accentColor: "#89b4fa"
+    property color backgroundColor: Colors.background
+    property color textColor: Colors.text
+    property color accentColor: Colors.accent
     property real radius: 0
+    property string fontFamily: "FiraCode Nerd Font"
+    property real fontSize: 14
     property var modules: ["clock", "workspaces", "battery", "network"]
 }

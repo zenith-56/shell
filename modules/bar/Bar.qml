@@ -14,30 +14,34 @@ PanelWindow {
     anchors.left: true
     anchors.right: true
     implicitHeight: BarConfig.height
-    color: BarConfig.backgroundColor
+    color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "quickshell-bar"
 
-    Row {
+    Rectangle {
+        anchors.fill: parent
+        color: BarConfig.backgroundColor
+        opacity: 1.0
+    }
+
+    Item {
         anchors.fill: parent
         anchors.leftMargin: 8
         anchors.rightMargin: 8
 
-        spacing: 4
+        Clock {
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+        }
 
-        Clock { }
-    }
+        Row {
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 8
 
-    Row {
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        anchors.rightMargin: 8
-
-        spacing: 4
-
-        BatteryIndicator { }
-        NetworkIndicator { }
+            NetworkIndicator {}
+            BatteryIndicator {}
+        }
     }
 }

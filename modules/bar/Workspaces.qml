@@ -16,6 +16,7 @@ Text {
         return result
     }
     color: BarConfig.textColor
-    font.pixelSize: 14
+    font.family: BarConfig.fontFamily
+    font.pixelSize: BarConfig.fontSize
     verticalAlignment: Text.AlignVCenter
 }

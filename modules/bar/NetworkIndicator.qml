@@ -14,15 +14,16 @@ Row {
     Text {
         text: Network.statusIcon()
         color: BarConfig.textColor
-        font.pixelSize: 14
+        font.family: BarConfig.fontFamily
+        font.pixelSize: BarConfig.fontSize
         verticalAlignment: Text.AlignVCenter
     }
 
     Text {
         text: network.ssid || "Disconnected"
         color: BarConfig.textColor
-        font.pixelSize: 12
-        font.family: "monospace"
+        font.family: BarConfig.fontFamily
+        font.pixelSize: BarConfig.fontSize
         verticalAlignment: Text.AlignVCenter
         visible: network.connected
     }

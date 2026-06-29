@@ -14,11 +14,16 @@ Singleton {
     property int timeToEmpty: UPower.displayDevice ? UPower.displayDevice.timeToEmpty : 0
 
     function statusIcon(): string {
-        if (!available) return "battery-missing"
-        if (charging) return "battery-charging"
-        if (percentage > 0.75) return "battery-full"
-        if (percentage > 0.50) return "battery-good"
-        if (percentage > 0.25) return "battery-low"
-        return "battery-empty"
+        if (!available)
+            return "󱉝"; // nf-md-battery_outline
+        if (charging)
+            return "󰂅"; // nf-md-battery_charging
+        if (percentage > 0.75)
+            return "󰂀"; // nf-md-battery
+        if (percentage > 0.50)
+            return "󰁾"; // nf-md-battery_60
+        if (percentage > 0.25)
+            return "󰁻"; // nf-md-battery_30
+        return "󰁺"; // nf-md-battery_10
     }
 }
