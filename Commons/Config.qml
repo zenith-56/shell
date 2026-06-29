@@ -15,7 +15,7 @@ Singleton {
 
     // File loader for shell.json
     property FileView loader: FileView {
-        path: Qt.resolvedUrl("../../shell.json")
+        path: "../shell.json"
         watchChanges: true
         onLoaded: root.applySettings(text())
     }

@@ -11,7 +11,5 @@ import "modules/bar"
 Scope {
     id: root
 
-    Config { }   // Loads and watches shell.json for runtime config
-
     Bar { }      // Renders the top status bar
 }
