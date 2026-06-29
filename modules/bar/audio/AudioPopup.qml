@@ -1,5 +1,5 @@
 // Audio OSD component.
-// Shows a horizontal volume bar when volume changes.
+// Shows icon, volume slider, and percentage in one row.
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -14,7 +14,7 @@ PopupWindow {
     visible: isOpen
     grabFocus: true
     implicitWidth: 240
-    implicitHeight: 60
+    implicitHeight: 40
 
     color: Color.background
 
@@ -31,44 +31,33 @@ PopupWindow {
         onTriggered: audioOsd.hide()
     }
 
-    // Content container
-    ColumnLayout {
+    // Content container - single row
+    RowLayout {
         anchors.fill: parent
-        anchors.margins: 16
+        anchors.margins: 12
         spacing: 12
 
         Keys.onEscapePressed: {
             audioOsd.hide();
         }
 
-        // Volume icon and percentage
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8
-
-            Text {
-                text: Audio.muted || Audio.volume === 0 ? "\uf00d"
-                    : Audio.volume < 0.33 ? "\uf026"
-                    : Audio.volume < 0.66 ? "\uf027"
-                    : "\uf028"
-                color: Color.text
-                font.family: BarConfig.fontFamily
-                font.pixelSize: 14
-            }
-
-            Text {
-                text: Audio.muted ? "Muted" : Math.round(Audio.volume * 100) + "%"
-                color: Color.text
-                font.family: BarConfig.fontFamily
-                font.pixelSize: 12
-                Layout.fillWidth: true
-            }
+        // Volume icon
+        Text {
+            text: Audio.muted || Audio.volume === 0 ? "\uf00d"
+                : Audio.volume < 0.33 ? "\uf026"
+                : Audio.volume < 0.66 ? "\uf027"
+                : "\uf028"
+            color: Color.text
+            font.family: BarConfig.fontFamily
+            font.pixelSize: 14
+            Layout.alignment: Qt.AlignVCenter
         }
 
-        // Volume bar background
+        // Slider bar background
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 3
+            Layout.preferredHeight: 4
+            Layout.alignment: Qt.AlignVCenter
             color: Color.divider
 
             // Filled portion
@@ -77,6 +66,16 @@ PopupWindow {
                 height: parent.height
                 color: Audio.muted ? Color.divider : "#ffffff"
             }
+        }
+
+        // Volume percentage
+        Text {
+            text: Audio.muted ? "Mute" : Math.round(Audio.volume * 100) + "%"
+            color: Color.text
+            font.family: BarConfig.fontFamily
+            font.pixelSize: 11
+            Layout.alignment: Qt.AlignVCenter
+            Layout.minimumWidth: 36
         }
     }
 
