@@ -80,7 +80,7 @@ PopupWindow {
                 text: "Battery size " + Math.round(Battery.energyCapacity) + "Wh"
                 color: Color.text
                 font.family: BarConfig.fontFamily
-                font.pixelSize: 14
+                font.pixelSize: 10
             }
 
             Item { Layout.fillWidth: true }
@@ -100,7 +100,7 @@ PopupWindow {
                 }
                 color: Color.text
                 font.family: BarConfig.fontFamily
-                font.pixelSize: 14
+                font.pixelSize: 10
             }
         }
 
@@ -113,7 +113,7 @@ PopupWindow {
                 text: "Threshold 95-100%"
                 color: Color.text
                 font.family: BarConfig.fontFamily
-                font.pixelSize: 14
+                font.pixelSize: 10
             }
 
             Item { Layout.fillWidth: true }
@@ -122,7 +122,7 @@ PopupWindow {
                 text: (Battery.charging ? "Charging" : "Discharging") + " " + Math.abs(Battery.changeRate).toFixed(1) + "W"
                 color: Color.text
                 font.family: BarConfig.fontFamily
-                font.pixelSize: 14
+                font.pixelSize: 10
             }
         }
 
