@@ -40,15 +40,15 @@ Singleton {
     // Returns a Nerd Font glyph based on current charge level
     function statusIcon(): string {
         if (!available)
-            return "\uf590";     // nf-md-battery_outline
+            return "󱃌"; // nf-md-battery_outline — no battery detected
         if (charging)
-            return "\uf0e7";     // nf-md-battery_charging
+            return ""; // nf-md-battery_charging — charging state
         if (percentage > 0.75)
-            return "\uf578";     // nf-md-battery
+            return ""; // nf-md-battery — full/high charge
         if (percentage > 0.50)
-            return "\uf577";     // nf-md-battery_60
+            return ""; // nf-md-battery_60 — medium charge
         if (percentage > 0.25)
-            return "\uf576";     // nf-md-battery_40
-        return "\uf575";         // nf-md-battery_20
+            return ""; // nf-md-battery_10 — critical charge
+        return ""; // nf-md-battery_10 — critical charge
     }
 }
