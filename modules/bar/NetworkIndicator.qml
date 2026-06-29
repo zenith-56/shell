@@ -10,7 +10,7 @@ Row {
     property bool connected: Network.connected       // Connection active
     property string ssid: Network.ssid               // WiFi network name
     property int signal: Network.signalStrength      // Signal strength (0-100)
-
+    
     spacing: 4
 
     // Network status icon from Network service

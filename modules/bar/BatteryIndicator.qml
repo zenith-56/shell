@@ -19,17 +19,17 @@ Row {
         text: Battery.statusIcon()
         color: BarConfig.textColor
         font.family: BarConfig.fontFamily
-        font.pixelSize: BarConfig.fontSize
+        font.pixelSize: BarConfig.fontSize + 4
         verticalAlignment: Text.AlignVCenter
     }
 
     // Percentage text — hidden when no battery
-    Text {
-        text: available ? Math.round(percentage * 100) + "%" : "N/A"
-        color: BarConfig.textColor
-        font.family: BarConfig.fontFamily
-        font.pixelSize: BarConfig.fontSize
-        verticalAlignment: Text.AlignVCenter
-        visible: available
-    }
+    //Text {
+    //    text: available ? Math.round(percentage * 100) + "%" : "N/A"
+    //    color: BarConfig.textColor
+    //    font.family: BarConfig.fontFamily
+    //    font.pixelSize: BarConfig.fontSize
+    //    verticalAlignment: Text.AlignVCenter
+    //    visible: available
+    //}
 }
