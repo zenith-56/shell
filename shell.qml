@@ -1,18 +1,15 @@
 import Quickshell
+import Quickshell.Services.UPower
+import Quickshell.Services.Pipewire
 import QtQuick
-import "config" as Config
-import "modules/bar" as Bar
-import "services" as Services
+import "config"
+import "services"
+import "modules/bar"
 
 Scope {
     id: root
 
-    Services.Time { }
-    Services.Battery { }
-    Services.Network { }
-    Services.Audio { }
+    Config { }
 
-    Config.Config { }
-
-    Bar.Bar { }
+    Bar { }
 }

@@ -1,3 +1,3 @@
-module Config 1.0
+module Config
+singleton BarConfig 1.0 BarConfig.qml
 Config 1.0 Config.qml
-BarConfig 1.0 BarConfig.qml

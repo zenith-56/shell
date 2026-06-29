@@ -1,5 +1,5 @@
 import QtQuick
-import "../../config" as Config
+import "../../config"
 
 Text {
     id: workspaces
@@ -15,7 +15,7 @@ Text {
         }
         return result
     }
-    color: Config.BarConfig.textColor
+    color: BarConfig.textColor
     font.pixelSize: 14
     verticalAlignment: Text.AlignVCenter
 }

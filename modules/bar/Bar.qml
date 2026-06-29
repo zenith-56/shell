@@ -1,8 +1,10 @@
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
-import "../../config" as Config
-import "../../services" as Services
+import "../../config"
+import "../../services"
+import Quickshell.Services.UPower
+import Quickshell.Services.Pipewire
 import "."
 
 PanelWindow {
@@ -11,8 +13,8 @@ PanelWindow {
     anchors.top: true
     anchors.left: true
     anchors.right: true
-    implicitHeight: Config.BarConfig.height
-    color: Config.BarConfig.backgroundColor
+    implicitHeight: BarConfig.height
+    color: BarConfig.backgroundColor
 
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "quickshell-bar"
@@ -25,7 +27,16 @@ PanelWindow {
         spacing: 4
 
         Clock { }
-        Item { Layout.fillWidth: true }
+    }
+
+    Row {
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.rightMargin: 8
+
+        spacing: 4
+
         BatteryIndicator { }
         NetworkIndicator { }
     }

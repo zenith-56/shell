@@ -1,15 +1,16 @@
 import QtQuick
-import "../../services" as Services
-import "../../config" as Config
+import QtQuick.Controls
+import "../../services"
+import "../../config"
 
 Text {
     id: clock
 
-    property string time: Services.Time.time
-    property string date: Services.Time.date
+    property string time: Time.time
+    property string date: Time.date
 
     text: time
-    color: Config.BarConfig.textColor
+    color: BarConfig.textColor
     font.pixelSize: 14
     font.family: "monospace"
     verticalAlignment: Text.AlignVCenter
