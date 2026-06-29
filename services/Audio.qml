@@ -17,9 +17,9 @@ Singleton {
     // Emitted when volume changes
     signal volumeChangedSignal()
 
-    // Poll volume status every 500ms for responsive OSD
+    // Poll volume status every 100ms for responsive OSD
     Timer {
-        interval: 500
+        interval: 100
         running: true
         repeat: true
         onTriggered: root.updateVolume()
