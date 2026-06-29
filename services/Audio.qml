@@ -13,9 +13,9 @@ Singleton {
     property bool muted: false       // Whether audio is muted
     property string sinkName: ""     // Name of the active audio sink
 
-    // Poll volume status every 2 seconds
+    // Poll volume status every 1 second
     Timer {
-        interval: 2000
+        interval: 1000
         running: true
         repeat: true
         onTriggered: root.updateVolume()
