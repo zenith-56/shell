@@ -1,8 +1,9 @@
 // Audio service singleton.
 // Manages volume level, mute state, and provides volume icons.
-// TODO: Integrate with PipeWire for real volume control.
+// Integrates with PipeWire for real volume control.
 pragma Singleton
 import Quickshell
+import Quickshell.Services.Pipewire
 import QtQuick
 
 Singleton {
@@ -12,21 +13,57 @@ Singleton {
     property bool muted: false       // Whether audio is muted
     property string sinkName: ""     // Name of the active audio sink
 
+    // Get the default audio sink from PipeWire
+    property var defaultSink: Pipewire.defaultAudioSink
+
+    // Update volume from PipeWire sink
+    Connections {
+        target: root.defaultSink
+        function onVolumeChanged() {
+            if (root.defaultSink) {
+                root.volume = root.defaultSink.volume;
+                root.muted = root.defaultSink.muted;
+                root.sinkName = root.defaultSink.description || root.defaultSink.name || "";
+            }
+        }
+        function onMutedChanged() {
+            if (root.defaultSink) {
+                root.muted = root.defaultSink.muted;
+            }
+        }
+    }
+
+    // Initialize from current sink state
+    Component.onCompleted: {
+        if (defaultSink) {
+            root.volume = defaultSink.volume;
+            root.muted = defaultSink.muted;
+            root.sinkName = defaultSink.description || defaultSink.name || "";
+        }
+    }
+
     // Clamp volume to valid range [0, 1]
     function setVolume(v: real): void {
-        root.volume = Math.max(0, Math.min(1, v))
+        var clamped = Math.max(0, Math.min(1, v));
+        root.volume = clamped;
+        if (defaultSink) {
+            defaultSink.volume = clamped;
+        }
     }
 
     // Toggle mute state on/off
     function toggleMute(): void {
-        root.muted = !root.muted
+        root.muted = !root.muted;
+        if (defaultSink) {
+            defaultSink.muted = root.muted;
+        }
     }
 
-    // Returns an icon name based on current volume level
+    // Returns a Nerd Font glyph based on current volume level
     function volumeIcon(): string {
-        if (muted || volume === 0) return "audio-volume-muted"    // Muted or zero
-        if (volume < 0.33) return "audio-volume-low"              // Low volume
-        if (volume < 0.66) return "audio-volume-medium"           // Medium volume
-        return "audio-volume-high"                                 // High volume
+        if (muted || volume === 0) return "\uf00d";     // nf-fa-volume_off
+        if (volume < 0.33) return "\uf026";              // nf-fa-volume_down
+        if (volume < 0.66) return "\uf027";              // nf-fa-volume_low
+        return "\uf028";                                 // nf-fa-volume_high
     }
 }
