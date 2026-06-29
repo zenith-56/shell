@@ -13,10 +13,10 @@ PopupWindow {
 
     visible: isOpen
     grabFocus: true
-    implicitWidth: 120
-    implicitHeight: 32
+    implicitWidth: 240
+    implicitHeight: 60
 
-    color: "transparent"
+    color: Color.background
 
     onVisibleChanged: {
         if (!visible) {
@@ -31,53 +31,51 @@ PopupWindow {
         onTriggered: audioOsd.hide()
     }
 
-    // Background box
-    Rectangle {
-        anchors.fill: contentArea
-        color: Color.background
-        radius: 6
-    }
-
     // Content container
-    RowLayout {
-        id: contentArea
-        anchors.centerIn: parent
-        width: 100
-        height: 24
-        spacing: 8
-        anchors.margins: 8
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 16
+        spacing: 12
 
         Keys.onEscapePressed: {
             audioOsd.hide();
         }
 
-        // Volume icon
-        Text {
-            id: iconText
-            text: Audio.muted || Audio.volume === 0 ? "\uf00d"
-                : Audio.volume < 0.33 ? "\uf026"
-                : Audio.volume < 0.66 ? "\uf027"
-                : "\uf028"
-            color: Color.text
-            font.family: BarConfig.fontFamily
-            font.pixelSize: 12
-            Layout.alignment: Qt.AlignVCenter
+        // Volume icon and percentage
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 8
+
+            Text {
+                text: Audio.muted || Audio.volume === 0 ? "\uf00d"
+                    : Audio.volume < 0.33 ? "\uf026"
+                    : Audio.volume < 0.66 ? "\uf027"
+                    : "\uf028"
+                color: Color.text
+                font.family: BarConfig.fontFamily
+                font.pixelSize: 14
+            }
+
+            Text {
+                text: Audio.muted ? "Muted" : Math.round(Audio.volume * 100) + "%"
+                color: Color.text
+                font.family: BarConfig.fontFamily
+                font.pixelSize: 12
+                Layout.fillWidth: true
+            }
         }
 
-        // Horizontal bar background
+        // Volume bar background
         Rectangle {
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.alignment: Qt.AlignVCenter
-            radius: 3
+            Layout.preferredHeight: 3
             color: Color.divider
 
             // Filled portion
             Rectangle {
                 width: parent.width * Audio.volume
                 height: parent.height
-                radius: parent.radius
-                color: Audio.muted ? Color.divider : Color.accent
+                color: Audio.muted ? Color.divider : "#ffffff"
             }
         }
     }
