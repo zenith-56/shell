@@ -14,10 +14,11 @@ Row {
 
     // Volume icon using Nerd Font glyphs
     Text {
-        text: audio.muted || audio.volume === 0 ? "\uf00d"     // nf-fa-volume_off
-            : audio.volume < 0.33 ? "\uf026"                    // nf-fa-volume_down
-            : audio.volume < 0.66 ? "\uf027"                    // nf-fa-volume_low
-            : "\uf028"                                          // nf-fa-volume_high
+        property bool isMuted: audio.muted || audio.volume === 0
+        property bool isLow: audio.volume > 0 && audio.volume < 0.33
+        property bool isMedium: audio.volume >= 0.33 && audio.volume < 0.66
+
+        text: isMuted ? "\uf00d" : isLow ? "\uf026" : isMedium ? "\uf027" : "\uf028"
         color: BarConfig.textColor
         font.family: BarConfig.fontFamily
         font.pixelSize: BarConfig.fontSize
