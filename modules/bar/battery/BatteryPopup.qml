@@ -11,6 +11,7 @@ PopupWindow {
     id: batteryPopup
 
     property bool isOpen: false
+    property Item anchorItem: null
 
     visible: isOpen
     grabFocus: true
@@ -73,9 +74,18 @@ PopupWindow {
         }
     }
 
-    // Function to show the popup anchored to an item
-    function show(anchorItem) {
-        anchor.item = anchorItem;
+    // Function to show the popup below the bar
+    function show(anchorWindow, anchorButtonItem) {
+        // Get position of the button in window coordinates
+        var pos = anchorButtonItem.mapToItem(anchorWindow.contentItem, 0, 0);
+        // Position popup below the bar, centered on the button
+        anchor.window = anchorWindow;
+        anchor.rect = Qt.rect(
+            pos.x + anchorButtonItem.width / 2 - implicitWidth / 2,
+            anchorWindow.height,
+            implicitWidth,
+            implicitHeight
+        );
         isOpen = true;
         visible = true;
     }

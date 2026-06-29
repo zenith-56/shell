@@ -33,7 +33,7 @@ Item {
             if (batteryPopup.isOpen) {
                 batteryPopup.hide();
             } else {
-                batteryPopup.show(iconText);
+                batteryPopup.show(bar, iconText);
             }
         }
     }
