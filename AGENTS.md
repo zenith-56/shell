@@ -25,12 +25,13 @@
 ## QML Conventions
 
 - Use `pragma Singleton` for singleton components.
-- Place each component in its correct module directory (`config/`, `services/`, `modules/`, `utils/`).
+- Place each component in its correct module directory (`Commons/`, `services/`, `modules/`, `utils/`).
 - Register new components in the corresponding `qmldir` file.
 - Prefer `readonly property` for constants.
 - Use descriptive `id` values that reflect the component's role.
-- Use `RowLayout` with `Layout.alignment: Qt.AlignVCenter` instead of `Row` when children have different heights and need vertical centering. `Row` aligns children to the top by default, which causes visual misalignment when items vary in size.
-- **All colors must come from `Color` singleton in Commons.** No hardcoded hex values in QML files. If a color is missing, add it to `Commons/Color.qml` first.
+- Use `RowLayout` with `Layout.alignment: Qt.AlignVCenter` instead of `Row` when children have different heights and need vertical centering.
+- Use `implicitWidth`/`implicitHeight` instead of `width`/`height` for components.
+- **All colors must come from `Color` singleton in Commons.** No hardcoded hex values in QML files.
 - **No borders.** Popups and UI elements must not use `border.color` or `border.width`.
 
 ## Architecture
