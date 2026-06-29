@@ -43,6 +43,12 @@ PanelWindow {
             anchors.centerIn: parent
         }
 
+        // Workspaces — left side
+        Workspaces {
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+        }
+
         // Right-side indicators — network and battery
         RowLayout {
             anchors.right: parent.right
