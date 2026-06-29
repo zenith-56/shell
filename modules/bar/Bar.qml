@@ -38,10 +38,9 @@ PanelWindow {
         anchors.leftMargin: 8
         anchors.rightMargin: 8
 
-        // Clock widget — anchored to the left
+        // Clock widget — centered in the bar
         Clock {
-            anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.centerIn: parent
         }
 
         // Right-side indicators — network and battery

@@ -27,6 +27,11 @@ Singleton {
         return Qt.formatDateTime(new Date(), "ddd MMM d")
     }
 
+    // Returns expanded date for click display (e.g., "Monday - 06/28/26")
+    function expandedDate(): string {
+        return Qt.formatDateTime(new Date(), "dddd - MM/dd/yy")
+    }
+
     // 1-second timer that triggers clock updates
     Timer {
         interval: 1000
