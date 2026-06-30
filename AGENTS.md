@@ -1,5 +1,12 @@
 # AGENTS.md — Project Conventions
 
+## Documentation First
+
+- **ALWAYS consult the official Quickshell documentation** before implementing any new feature or fixing issues.
+- Use `webfetch` to read https://quickshell.org/docs/v0.3.0/types/ for API reference.
+- Do NOT guess or invent APIs. If documentation is unclear, search for examples in the quickshell-examples repo.
+- When a feature doesn't work as expected, the first step should always be checking the docs, not trying random fixes.
+
 ## File Size
 
 - Keep files **small and focused**. Each file should handle a single responsibility.
@@ -49,7 +56,7 @@
 
 ## Architecture
 
-- **Commons/** — Shared singletons (Color, Style, Util, BarConfig, Config, PopupManager). Module: `qs.Commons`.
+- **Commons/** — Shared singletons (Color, Style, Util, BarConfig, Config, PopupManager, PanelKeyCatcher). Module: `qs.Commons`.
 - **services/** — System integration singletons (Audio, Battery, Bluetooth, Network, PowerProfile, Time, Workspaces).
 - **modules/** — UI feature modules organized by component.
   - `bar/` — Status bar (Bar, Clock, indicators).
@@ -59,3 +66,5 @@
   - `bar/network/` — Network popup + WiFi password dialog.
 - **utils/** — Shared helpers (Icons, Paths).
 - **components/** — Reusable QML primitives (BasePopup, Divider, IconButton, ToggleSwitch).
+- **UI/** — Reusable form controls (ConfirmDialog, NumberField, ButtonGroup, SearchableDropdown, MultiSelect). Module: `qs.UI`.
+- **Plugins/** — Standalone features (CommandMenu, Clipboard, EmojiPicker, Notifications, LockScreen). Each plugin is a self-contained module.

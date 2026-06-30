@@ -22,8 +22,6 @@ PopupWindow {
         }
     }
 
-    Keys.onEscapePressed: hide()
-
     // Position popup below the anchor button and close others
     function show(anchorWindow, anchorButtonItem) {
         PopupManager.closeOthers(basePopup);

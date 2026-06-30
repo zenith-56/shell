@@ -4,7 +4,6 @@ import QtQuick
 import "../../Commons"
 import "../../services"
 import "../../utils"
-import "battery"
 
 Item {
     id: battery
@@ -13,7 +12,6 @@ Item {
     height: BarConfig.height
 
     Text {
-        id: iconText
         anchors.centerIn: parent
         text: Icons.batteryIcon(Battery.available, Battery.charging, Battery.percentage)
         color: Battery.percentage <= 0.2 && !Battery.charging ? Color.lowBattery : BarConfig.textColor
@@ -24,16 +22,6 @@ Item {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: {
-            if (batteryPopup.isOpen) {
-                batteryPopup.hide();
-            } else {
-                batteryPopup.show(bar, iconText);
-            }
-        }
-    }
-
-    BatteryPopup {
-        id: batteryPopup
+        onClicked: PopupControl.toggle("battery", battery)
     }
 }

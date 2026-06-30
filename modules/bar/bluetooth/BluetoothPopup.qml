@@ -1,293 +1,227 @@
-// Bluetooth popup component.
-// Shows Bluetooth toggle, paired devices, and available devices.
+// Bluetooth popup — PanelWindow with keyboard focus.
+// Shows toggle, paired devices, and available devices.
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Wayland
 import "../../../Commons"
 import "../../../services"
 import "../../../utils"
-import "../../../components"
+import "../../../UI"
 
-BasePopup {
-    id: bluetoothPopup
+PanelWindow {
+    id: root
 
-    implicitWidth: 360
-    implicitHeight: 480
-
+    property bool isOpen: PopupControl.isOpen("bluetooth")
+    property int deviceIndex: -1
+    property bool cursorActive: false
     property string pendingRemoveAddress: ""
     property string pendingRemoveName: ""
 
-    ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 16
-        anchors.bottomMargin: 24
-        spacing: 12
+    visible: isOpen
+    implicitWidth: 400
+    implicitHeight: 500
+    exclusionMode: ExclusionMode.Ignore
+    WlrLayershell.layer: WlrLayershell.Overlay
+    WlrLayershell.namespace: "bluetooth-popup"
+    WlrLayershell.keyboardFocus: isOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    anchors { top: true; bottom: true; left: true; right: true }
+    color: "transparent"
 
-        Keys.onEscapePressed: bluetoothPopup.hide()
-
-        // Header
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8
-            Text { text: Icons.bluetooth; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.iconLarge }
-            Text { text: Bluetooth.connectedDevice ? Bluetooth.connectedDevice.name : "Bluetooth"; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.heading; font.bold: true }
+    onVisibleChanged: {
+        if (visible) {
+            Bluetooth.refreshAvailable()
+            deviceIndex = -1; cursorActive = false
+            pendingRemoveAddress = ""; pendingRemoveName = ""
+            Qt.callLater(() => card.forceActiveFocus())
         }
+    }
 
-        Divider {}
+    function deviceCount() { return Bluetooth.pairedDevices.length + Bluetooth.availableDevices.length }
+    function getDevice(idx) {
+        if (idx < Bluetooth.pairedDevices.length) return Bluetooth.pairedDevices[idx]
+        return Bluetooth.availableDevices[idx - Bluetooth.pairedDevices.length]
+    }
+    function isPaired(idx) { return idx < Bluetooth.pairedDevices.length }
 
-        // Bluetooth toggle
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8
-            Text { text: "Bluetooth"; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.title; font.bold: true }
-            Item { Layout.fillWidth: true }
-            ToggleSwitch {
-                active: Bluetooth.enabled
-                onToggled: Bluetooth.toggle()
-            }
-        }
+    MouseArea { anchors.fill: parent; onClicked: PopupControl.close() }
 
-        // Error message
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 28
-            radius: 6
-            color: Color.divider
-            visible: Bluetooth.lastError !== ""
+    Rectangle {
+        id: card
+        width: 380; height: 520
+        x: Math.max(8, Math.min(PopupControl.anchorX + PopupControl.anchorWidth - width, parent.width - width - 8))
+        anchors.top: parent.top; anchors.topMargin: PopupControl.barHeight + 4
+        color: Color.background; radius: 8
+        clip: true
 
-            Text {
-                anchors.centerIn: parent
-                text: Bluetooth.lastError
-                color: Color.text
-                font.family: Style.font.family
-                font.pixelSize: Style.font.body
-            }
-        }
-
-        // Remove confirmation bar
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 40
-            radius: 6
-            color: Color.divider
-            visible: pendingRemoveAddress !== ""
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 8
-                spacing: 8
-
-                Text {
-                    text: "Remove " + pendingRemoveName + "?"
-                    color: Color.text
-                    font.family: Style.font.family
-                    font.pixelSize: Style.font.body
-                    Layout.fillWidth: true
-                    elide: Text.ElideRight
+        Keys.onEscapePressed: PopupControl.close()
+        Keys.onPressed: function(event) {
+            const k = event.key; const t = event.text
+            if (t === "j" || k === Qt.Key_Down) {
+                cursorActive = true
+                deviceIndex = Math.min(deviceCount() - 1, deviceIndex + 1)
+                event.accepted = true
+            } else if (t === "k" || k === Qt.Key_Up) {
+                deviceIndex = Math.max(0, deviceIndex - 1)
+                event.accepted = true
+            } else if (k === Qt.Key_Return || k === Qt.Key_Space) {
+                if (cursorActive && deviceIndex >= 0) {
+                    var dev = getDevice(deviceIndex)
+                    if (dev.connected) Bluetooth.disconnect(dev.address)
+                    else Bluetooth.connect(dev.address)
                 }
+                event.accepted = true
+            } else if (t === "x" || t === "X") {
+                if (cursorActive && deviceIndex >= 0 && isPaired(deviceIndex)) {
+                    var dev2 = getDevice(deviceIndex)
+                    pendingRemoveAddress = dev2.address
+                    pendingRemoveName = dev2.name
+                }
+                event.accepted = true
+            }
+        }
 
-                // Cancel button
-                Rectangle {
-                    width: cancelRemove.implicitWidth + 12
-                    height: 24
-                    radius: 4
-                    color: cancelRemoveArea.containsMouse ? Color.surface : "transparent"
+        Column {
+            id: headerColumn
+            anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+            anchors.margins: 14; spacing: 14
 
+            Row {
+                spacing: 14
+                Text { text: Icons.bluetooth; color: Bluetooth.enabled ? (Bluetooth.connectedDevice ? Color.success : Color.text) : Color.textMuted; font.family: Style.font.family; font.pixelSize: Style.font.iconLarge; anchors.verticalCenter: parent.verticalCenter }
+                Column {
+                    anchors.verticalCenter: parent.verticalCenter; spacing: 2
+                    Text { text: "Bluetooth"; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.title; font.bold: true }
                     Text {
-                        id: cancelRemove
-                        anchors.centerIn: parent
-                        text: "Cancel"
-                        color: Color.text
-                        font.family: Style.font.family
-                        font.pixelSize: Style.font.caption
-                    }
-
-                    MouseArea {
-                        id: cancelRemoveArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            pendingRemoveAddress = "";
-                            pendingRemoveName = "";
-                        }
-                    }
-                }
-
-                // Confirm remove button
-                Rectangle {
-                    width: confirmRemove.implicitWidth + 12
-                    height: 24
-                    radius: 4
-                    color: confirmRemoveArea.containsMouse ? Color.lowBattery : "transparent"
-
-                    Text {
-                        id: confirmRemove
-                        anchors.centerIn: parent
-                        text: "Remove"
-                        color: Color.lowBattery
-                        font.family: Style.font.family
-                        font.pixelSize: Style.font.caption
-                        font.bold: true
-                    }
-
-                    MouseArea {
-                        id: confirmRemoveArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            Bluetooth.remove(pendingRemoveAddress);
-                            pendingRemoveAddress = "";
-                            pendingRemoveName = "";
-                        }
+                        text: Bluetooth.connectedDevice ? Bluetooth.connectedDevice.name : (Bluetooth.enabled ? "No device connected" : "Disabled")
+                        color: Color.textMuted; font.family: Style.font.family; font.pixelSize: Style.font.caption
+                        font.bold: true; font.letterSpacing: 1.2
                     }
                 }
             }
+
+            PanelSeparator { foreground: Color.text }
+
+            Row {
+                width: parent.width; spacing: 8
+                Text { text: "Bluetooth"; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.title; font.bold: true; anchors.verticalCenter: parent.verticalCenter }
+                Item { width: parent.width - 180; height: 1 }
+                Rectangle {
+                    width: 44; height: 24; radius: 12
+                    color: Bluetooth.enabled ? Color.success : Color.divider
+                    anchors.verticalCenter: parent.verticalCenter
+                    Rectangle { x: Bluetooth.enabled ? 22 : 2; y: 2; width: 20; height: 20; radius: 10; color: Color.text; Behavior on x { NumberAnimation { duration: 150 } } }
+                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Bluetooth.toggle() }
+                }
+            }
+
+            Rectangle {
+                visible: Bluetooth.lastError !== ""
+                width: parent.width; height: 28; radius: 6; color: Color.divider
+                Text { anchors.centerIn: parent; text: Bluetooth.lastError; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body }
+            }
+
+            Rectangle {
+                visible: pendingRemoveAddress !== ""
+                width: parent.width; height: 40; radius: 6; color: Color.divider
+                Row {
+                    anchors.fill: parent; anchors.margins: 8; spacing: 8
+                    Text { text: "Remove " + pendingRemoveName + "?"; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body; anchors.verticalCenter: parent.verticalCenter; width: parent.width - 120; elide: Text.ElideRight }
+                    Rectangle {
+                        width: 48; height: 24; radius: 4; color: "transparent"
+                        Text { anchors.centerIn: parent; text: "Cancel"; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.caption }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: { pendingRemoveAddress = ""; pendingRemoveName = "" } }
+                    }
+                    Rectangle {
+                        width: 48; height: 24; radius: 4; color: "transparent"
+                        Text { anchors.centerIn: parent; text: "Remove"; color: Color.lowBattery; font.family: Style.font.family; font.pixelSize: Style.font.caption; font.bold: true }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: { Bluetooth.remove(pendingRemoveAddress); pendingRemoveAddress = ""; pendingRemoveName = "" } }
+                    }
+                }
+            }
+
+            PanelSectionHeader { text: "DEVICES"; foreground: Color.text }
         }
 
         // Device list
         Rectangle {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.minimumHeight: 300
-            color: Color.surface
-            radius: 8
-            clip: true
+            id: deviceListBg
+            anchors.left: parent.left; anchors.right: parent.right; anchors.top: headerColumn.bottom
+            anchors.bottom: scanButton.top; anchors.margins: 14
+            color: Color.surface; radius: 6; clip: true
 
-            Flickable {
-                anchors.fill: parent
-                anchors.margins: 8
-                contentHeight: col.height
-                clip: true
-                flickableDirection: Flickable.VerticalFlick
+            ListView {
+                id: listView
+                anchors.fill: parent; anchors.margins: 4
+                spacing: 4
 
-                ColumnLayout {
-                    id: col
-                    width: parent.width
-                    spacing: 4
+                model: ListModel {
+                    id: deviceModel
+                }
 
-                    // Scan toggle button
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 32
-                        color: scanArea.containsMouse ? Color.divider : "transparent"
-                        radius: 6
-                        RowLayout {
-                            anchors.centerIn: parent
-                            spacing: 6
-                            Text { text: Bluetooth.scanning ? Icons.times : Icons.refresh; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body }
-                            Text { text: Bluetooth.scanning ? "Stop Scan" : "Scan"; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body }
-                        }
-                        MouseArea { id: scanArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Bluetooth.scanning ? Bluetooth.stopScan() : Bluetooth.startScan() }
+                Component.onCompleted: listView.rebuildModel()
+                Connections {
+                    target: Bluetooth
+                    function onPairedDevicesChanged() { listView.rebuildModel() }
+                    function onAvailableDevicesChanged() { listView.rebuildModel() }
+                }
+
+                function rebuildModel() {
+                    deviceModel.clear()
+                    for (var i = 0; i < Bluetooth.pairedDevices.length; i++) {
+                        var d = Bluetooth.pairedDevices[i]
+                        deviceModel.append({ name: d.name, connected: d.connected, address: d.address, paired: true, signal: 0, security: "" })
                     }
-
-                    Text { text: "Paired Devices"; color: Color.textMuted; font.family: Style.font.family; font.pixelSize: Style.font.caption; Layout.topMargin: 8 }
-
-                    Repeater {
-                        model: Bluetooth.pairedDevices
-                        Rectangle {
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 52
-                            color: "transparent"
-                            radius: 6
-                            property bool isConnected: modelData.connected
-                            property bool isConnecting: false
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.margins: 8
-                                spacing: 8
-                                Text { text: Icons.headphones; color: isConnected ? Color.success : Color.text; font.family: Style.font.family; font.pixelSize: Style.font.title }
-                                ColumnLayout {
-                                    spacing: 2
-                                    Layout.fillWidth: true
-                                    Text { text: modelData.name; color: isConnected ? Color.success : Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body; font.bold: isConnected; elide: Text.ElideRight; Layout.fillWidth: true }
-                                    RowLayout {
-                                        spacing: 6
-                                        Text { text: isConnected ? "Connected" : "Paired"; color: Color.textMuted; font.family: Style.font.family; font.pixelSize: Style.font.caption }
-                                        Text {
-                                            text: modelData.battery >= 0 ? Icons.batteryOutline + " " + modelData.battery + "%" : ""
-                                            color: Color.textMuted
-                                            font.family: Style.font.family
-                                            font.pixelSize: Style.font.caption
-                                            visible: modelData.battery >= 0
-                                        }
-                                    }
-                                }
-                                // Connect/Disconnect button
-                                Rectangle {
-                                    width: 28
-                                    height: 28
-                                    radius: 14
-                                    color: linkArea.containsMouse ? Color.divider : "transparent"
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: isConnected ? Icons.times : Icons.link
-                                        color: Color.text
-                                        font.family: Style.font.family
-                                        font.pixelSize: Style.font.body
-                                    }
-                                    MouseArea {
-                                        id: linkArea
-                                        anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: {
-                                            if (isConnected) Bluetooth.disconnect(modelData.address);
-                                            else Bluetooth.connect(modelData.address);
-                                        }
-                                    }
-                                }
-                                IconButton { icon: Icons.trash; onClicked: { pendingRemoveAddress = modelData.address; pendingRemoveName = modelData.name; } }
-                            }
-                        }
+                    for (var i = 0; i < Bluetooth.availableDevices.length; i++) {
+                        var d = Bluetooth.availableDevices[i]
+                        deviceModel.append({ name: d.name, connected: false, address: d.address, paired: false, signal: 0, security: "" })
                     }
+                }
 
-                    Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; Layout.topMargin: 8; color: Color.divider; visible: Bluetooth.availableDevices.length > 0 }
-                    Text { text: "Available Devices"; color: Color.textMuted; font.family: Style.font.family; font.pixelSize: Style.font.caption; Layout.topMargin: 8; visible: Bluetooth.availableDevices.length > 0 }
+                highlightFollowsCurrentItem: true
+                highlight: Rectangle { color: Color.divider; radius: 6 }
 
-                    Repeater {
-                        model: Bluetooth.availableDevices
+                delegate: Rectangle {
+                    width: listView.width; height: 44; radius: 6; color: "transparent"
+
+                    Row {
+                        anchors.fill: parent; anchors.margins: 8; spacing: 8
+                        Text { text: model.paired ? Icons.headphones : Icons.bluetooth; color: model.connected ? Color.success : Color.text; font.family: Style.font.family; font.pixelSize: Style.font.title; anchors.verticalCenter: parent.verticalCenter }
+                        Column {
+                            width: parent.width - 100; anchors.verticalCenter: parent.verticalCenter; spacing: 2
+                            Text { text: model.name; color: model.connected ? Color.success : Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body; font.bold: model.connected; elide: Text.ElideRight; width: parent.width }
+                            Text { text: model.paired ? (model.connected ? "Connected" : "Paired") : "Available"; color: Color.textMuted; font.family: Style.font.family; font.pixelSize: Style.font.caption }
+                        }
                         Rectangle {
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 44
-                            color: "transparent"
-                            radius: 6
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.margins: 8
-                                spacing: 8
-                                Text { text: Icons.bluetooth; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.title }
-                                Text { text: modelData.name; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body; Layout.fillWidth: true; elide: Text.ElideRight }
-                                // Pair button
-                                IconButton {
-                                    icon: Icons.plus
-                                    onClicked: Bluetooth.pair(modelData.address)
-                                }
-                            }
+                            width: 28; height: 28; radius: 14; color: "transparent"
+                            Text { anchors.centerIn: parent; text: model.connected ? Icons.times : (model.paired ? Icons.link : Icons.plus); color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body }
+                            MouseArea { anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: {
+                                if (model.connected) Bluetooth.disconnect(model.address)
+                                else if (model.paired) Bluetooth.connect(model.address)
+                                else Bluetooth.pair(model.address)
+                            }}
+                        }
+                        Rectangle {
+                            visible: model.paired
+                            width: 28; height: 28; radius: 14; color: "transparent"
+                            Text { anchors.centerIn: parent; text: Icons.trash; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body }
+                            MouseArea { anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: { pendingRemoveAddress = model.address; pendingRemoveName = model.name } }
                         }
                     }
                 }
             }
         }
-    }
 
-    // Override show to also refresh available devices
-    function show(anchorWindow, anchorButtonItem) {
-        PopupManager.closeOthers(bluetoothPopup);
-        Bluetooth.refreshAvailable();
-        var pos = anchorButtonItem.mapToItem(anchorWindow.contentItem, 0, 0);
-        anchor.window = anchorWindow;
-        anchor.rect = Qt.rect(
-            pos.x + anchorButtonItem.width / 2 - implicitWidth / 2,
-            anchorWindow.height,
-            implicitWidth,
-            implicitHeight
-        );
-        isOpen = true;
-        visible = true;
-        PopupManager.registerPopup(bluetoothPopup);
+        Rectangle {
+            id: scanButton
+            anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+            anchors.margins: 14; height: 32; radius: 6
+            color: scanArea.containsMouse ? Color.divider : "transparent"
+            Row { anchors.centerIn: parent; spacing: 6
+                Text { text: Bluetooth.scanning ? Icons.times : Icons.refresh; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body }
+                Text { text: Bluetooth.scanning ? "Stop Scan" : "Scan"; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body }
+            }
+            MouseArea { id: scanArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Bluetooth.scanning ? Bluetooth.stopScan() : Bluetooth.startScan() }
+        }
     }
 }

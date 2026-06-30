@@ -63,6 +63,10 @@ QtObject {
     readonly property string trash: "\uf48e"             // nf-fa-trash
     readonly property string link: "\uf0c1"              // nf-fa-link
 
+    // Launcher icons
+    readonly property string launcher: "\udb80\udf5c"          // nf-fa-th-large (apps grid)
+    readonly property string search: "\uf002"            // nf-fa-search
+
     // Returns volume icon based on level
     function volumeIcon(muted: bool, volume: real): string {
         if (muted || volume === 0) return volumeOff;

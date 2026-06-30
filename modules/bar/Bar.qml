@@ -8,6 +8,7 @@ import QtQuick.Layouts
 import "../../Commons"
 import "../../services"
 import "../../utils"
+import "../launcher"
 
 PanelWindow {
     id: bar
@@ -27,7 +28,10 @@ PanelWindow {
 
         MouseArea {
             anchors.fill: parent
-            onClicked: PopupManager.closeAll()
+            onClicked: {
+                LauncherState.hide();
+                PopupControl.close();
+            }
         }
     }
 
@@ -36,6 +40,12 @@ PanelWindow {
         anchors.leftMargin: 8
         anchors.rightMargin: 8
 
+        LauncherButton {
+            barWindow: bar
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+        }
+
         Clock {
             anchors.centerIn: parent
         }
@@ -43,6 +53,7 @@ PanelWindow {
         WorkspaceIndicator {
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
+            anchors.leftMargin: Style.font.indicator + 2 + 8
         }
 
         RowLayout {
