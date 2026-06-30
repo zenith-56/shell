@@ -44,6 +44,13 @@ QtObject {
     readonly property string wifiStrong: "\udb82\udd28"    // nf-md-wifi_strength_4
     readonly property string wifiNone: "\udb82\udd2d"      // nf-md-wifi_strength_outline
     readonly property string ethernet: "\uef44"      // nf-fa-ethernet
+    readonly property string signal1: "\udb82\udd1f"      // nf-md-wifi_strength_1
+    readonly property string signal2: "\udb82\udd22"      // nf-md-wifi_strength_2
+    readonly property string signal3: "\udb82\udd25"      // nf-md-wifi_strength_3
+    readonly property string signal4: "\udb82\udd28"      // nf-md-wifi_strength_4
+    readonly property string lock: "\uf023"              // nf-fa-lock
+    readonly property string lockOpen: "\uf13e"          // nf-fa-lock_open
+    readonly property string refresh: "\uf021"           // nf-fa-refresh
 
     // Returns volume icon based on level
     function volumeIcon(muted: bool, volume: real): string {
@@ -68,5 +75,13 @@ QtObject {
         if (percentage > 0.2) return battery30;
         if (percentage > 0.1) return battery20;
         return battery10;
+    }
+
+    // Returns signal icon based on strength
+    function signalIcon(signalStrength: int): string {
+        if (signalStrength > 75) return signal4;
+        if (signalStrength > 50) return signal3;
+        if (signalStrength > 25) return signal2;
+        return signal1;
     }
 }

@@ -8,36 +8,44 @@ import QtQuick
 Singleton {
     id: root
 
-    property bool connected: false         // Whether any network connection is active
-    property bool wifi: false              // Whether connected via WiFi
-    property string ssid: ""               // Current WiFi SSID
-    property string ipAddress: ""          // Current IP address
-    property int signalStrength: 0         // Signal strength percentage (0-100)
-    property string state: "disconnected"  // Connection state string
+    property bool connected: false
+    property bool wifi: false
+    property bool wifiEnabled: true
+    property string ssid: ""
+    property string ipAddress: ""
+    property int signalStrength: 0
+    property string state: "disconnected"
+    property var availableNetworks: []
+    property var knownNetworks: []
+    property bool hotspotActive: false
+    property string hotspotSsid: ""
+    property string hotspotPassword: ""
 
     // Returns a Nerd Font glyph based on connection type and signal strength
     function statusIcon(): string {
-        if (!connected) return "󰤭";                    // nf-md-wifi_off — no connection
-        if (!wifi) return "";                        // nf-md-ethernet — wired connection
-        if (signalStrength > 75) return "󰤨";           // nf-md-wifi — excellent signal
-        if (signalStrength > 50) return "󰤥";           // nf-md-wifi — good signal
-        if (signalStrength > 25) return "󰤢";           // nf-md-wifi — fair signal
-        return "󰤟";                                    // nf-md-wifi — weak signal
+        if (!connected) return "󰤭";
+        if (!wifi) return "";
+        if (signalStrength > 75) return "󰤨";
+        if (signalStrength > 50) return "󰤥";
+        if (signalStrength > 25) return "󰤢";
+        return "󰤟";
     }
 
-    // Polls every 10 seconds for network status changes
+    // Polls every 2 seconds for network status changes
     Timer {
-        interval: 10000
+        interval: 2000
         running: true
         repeat: true
         triggeredOnStart: true
         onTriggered: {
             stateProc.exec(["nmcli", "-t", "-f", "STATE", "general"]);
             deviceProc.exec(["nmcli", "-t", "-f", "TYPE,STATE,CONNECTION", "device"]);
+            wifiProc.exec(["nmcli", "radio", "wifi"]);
+            hotspotProc.exec(["nmcli", "-t", "-f", "ACTIVE,SSID", "connection", "show", "--active"]);
+            knownProc.exec(["nmcli", "-t", "-f", "NAME,TYPE", "connection", "show"]);
         }
     }
 
-    // Reads overall NetworkManager state (connected/disconnected)
     Process {
         id: stateProc
         command: ["nmcli", "-t", "-f", "STATE", "general"]
@@ -51,7 +59,6 @@ Singleton {
         }
     }
 
-    // Reads device types and connection names to detect WiFi vs wired
     Process {
         id: deviceProc
         command: ["nmcli", "-t", "-f", "TYPE,STATE,CONNECTION", "device"]
@@ -81,7 +88,6 @@ Singleton {
         }
     }
 
-    // Reads WiFi signal strength for the currently connected network
     Process {
         id: signalProc
         command: ["nmcli", "-t", "-f", "IN-USE,SIGNAL", "device", "wifi", "list"]
@@ -98,6 +104,164 @@ Singleton {
                         break;
                     }
                 }
+            }
+        }
+    }
+
+    Process {
+        id: wifiProc
+        command: ["nmcli", "radio", "wifi"]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                root.wifiEnabled = this.text.trim() === "enabled";
+            }
+        }
+    }
+
+    Process {
+        id: hotspotProc
+        command: ["nmcli", "-t", "-f", "ACTIVE,SSID", "connection", "show", "--active"]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                var lines = this.text.trim().split("\n");
+                root.hotspotActive = false;
+                for (var i = 0; i < lines.length; i++) {
+                    var parts = lines[i].split(":");
+                    if (parts.length >= 2 && parts[0] === "yes" && parts[1].startsWith("Hotspot")) {
+                        root.hotspotActive = true;
+                        root.hotspotSsid = parts[1];
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Get known/saved WiFi networks
+    Process {
+        id: knownProc
+        command: ["nmcli", "-t", "-f", "NAME,TYPE", "connection", "show"]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                var lines = this.text.trim().split("\n");
+                var known = [];
+                for (var i = 0; i < lines.length; i++) {
+                    var parts = lines[i].split(":");
+                    if (parts.length >= 2 && parts[1] === "802-11-wireless") {
+                        known.push(parts[0]);
+                    }
+                }
+                root.knownNetworks = known;
+            }
+        }
+    }
+
+    // Toggle WiFi on/off
+    function toggleWifi(): void {
+        var newState = wifiEnabled ? "off" : "on";
+        toggleWifiProc.command = ["nmcli", "radio", "wifi", newState];
+        toggleWifiProc.running = true;
+        wifiEnabled = !wifiEnabled;
+    }
+
+    Process {
+        id: toggleWifiProc
+        command: ["nmcli", "radio", "wifi", "off"]
+    }
+
+    // Scan available WiFi networks
+    function scanNetworks(): void {
+        scanProc.running = true;
+    }
+
+    Process {
+        id: scanProc
+        command: ["nmcli", "-t", "-f", "SSID,SIGNAL,SECURITY", "device", "wifi", "list", "--rescan", "yes"]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                var lines = this.text.trim().split("\n");
+                var networks = [];
+                var seen = {};
+
+                for (var i = 0; i < lines.length; i++) {
+                    var parts = lines[i].split(":");
+                    if (parts.length >= 3 && parts[0] !== "") {
+                        var ssid = parts[0];
+                        if (!seen[ssid]) {
+                            seen[ssid] = true;
+                            networks.push({
+                                ssid: ssid,
+                                signal: parseInt(parts[1]) || 0,
+                                security: parts[2] || "None"
+                            });
+                        }
+                    }
+                }
+
+                networks.sort(function(a, b) { return b.signal - a.signal; });
+                root.availableNetworks = networks;
+            }
+        }
+    }
+
+    // Connect to a WiFi network
+    function connect(ssid: string, password: string): void {
+        if (password.length > 0) {
+            connectProc.command = ["nmcli", "device", "wifi", "connect", ssid, "password", password];
+        } else {
+            connectProc.command = ["nmcli", "device", "wifi", "connect", ssid];
+        }
+        connectProc.running = true;
+    }
+
+    Process {
+        id: connectProc
+        command: ["nmcli", "device", "wifi", "connect", ""]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                root.scanNetworks();
+            }
+        }
+    }
+
+    // Disconnect from current WiFi
+    function disconnect(): void {
+        disconnectProc.running = true;
+    }
+
+    Process {
+        id: disconnectProc
+        command: ["nmcli", "device", "disconnect", "wlp0s20f3"]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                root.scanNetworks();
+            }
+        }
+    }
+
+    // Toggle hotspot
+    function toggleHotspot(): void {
+        if (hotspotActive) {
+            hotspotToggleProc.command = ["nmcli", "connection", "down", "Hotspot"];
+        } else {
+            hotspotToggleProc.command = ["nmcli", "connection", "up", "Hotspot"];
+        }
+        hotspotToggleProc.running = true;
+    }
+
+    Process {
+        id: hotspotToggleProc
+        command: ["nmcli", "connection", "up", "Hotspot"]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                hotspotProc.exec(["nmcli", "-t", "-f", "ACTIVE,SSID", "connection", "show", "--active"]);
             }
         }
     }
