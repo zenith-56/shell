@@ -15,4 +15,5 @@ Singleton {
     property color activeWorkspace: "#ffffff"  // Active workspace indicator
     property color inactiveWorkspace: "#666666" // Inactive workspace indicator
     property color success: "#4ade80"          // Green for positive states (charging)
+    property color lowBattery: "#ef4444"       // Red for low battery warning
 }

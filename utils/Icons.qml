@@ -19,7 +19,7 @@ QtObject {
     // Battery icons
     readonly property string batteryOutline: "\udb80\udc8e"   // nf-md-battery_outline
     readonly property string batteryCharging: "\udb80\udc84"  // nf-md-battery_charging
-    readonly property string battery100: "\udb85\udfe2"          // nf-md-battery
+    readonly property string battery100: "\udb80\udc79"          // nf-md-battery
     readonly property string battery90: "\udb80\udc82"        // nf-md-battery_90
     readonly property string battery80: "\udb80\udc81"        // nf-md-battery_80
     readonly property string battery70: "\udb80\udc80"        // nf-md-battery_70
@@ -64,7 +64,6 @@ QtObject {
     function batteryIcon(available: bool, charging: bool, percentage: real): string {
         if (!available) return batteryOutline;
         if (charging) return batteryCharging;
-        if (percentage > 1.0) return battery100;
         if (percentage > 0.9) return battery100;
         if (percentage > 0.8) return battery90;
         if (percentage > 0.7) return battery80;

@@ -20,7 +20,7 @@ Item {
     Text {
         id: iconText
         text: Icons.batteryIcon(Battery.available, Battery.charging, Battery.percentage)
-        color: BarConfig.textColor
+        color: Battery.percentage <= 0.2 && !Battery.charging ? Color.lowBattery : BarConfig.textColor
         font.family: Style.font.family
         font.pixelSize: Style.font.title + 4
         verticalAlignment: Text.AlignVCenter

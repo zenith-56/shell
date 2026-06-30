@@ -50,7 +50,7 @@ PopupWindow {
             Rectangle {
                 width: parent.width * Battery.percentage
                 height: parent.height
-                color: Battery.charging ? Color.success : Color.text
+                color: Battery.charging ? Color.success : (Battery.percentage <= 0.2 ? Color.lowBattery : Color.text)
             }
         }
 

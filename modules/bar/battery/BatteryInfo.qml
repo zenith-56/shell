@@ -17,7 +17,7 @@ RowLayout {
     // Large battery icon
     Text {
         text: Icons.batteryIcon(Battery.available, Battery.charging, Battery.percentage)
-        color: Battery.charging ? Color.success : Color.text
+        color: Battery.charging ? Color.success : (Battery.percentage <= 0.2 ? Color.lowBattery : Color.text)
         font.family: Style.font.family
         font.pixelSize: Style.font.iconLarge
         Layout.alignment: Qt.AlignVCenter
@@ -36,7 +36,7 @@ RowLayout {
         // Percentage text
         Text {
             text: Math.round(percentage * 100) + "%"
-            color: Color.text
+            color: Battery.percentage <= 0.2 && !Battery.charging ? Color.lowBattery : Color.text
             font.family: Style.font.family
             font.pixelSize: Style.font.large
             font.bold: true
@@ -47,7 +47,7 @@ RowLayout {
         // Charging status
         Text {
             text: "● " + (charging ? "Charging" : "Discharging")
-            color: Battery.charging ? Color.success : Color.text
+            color: Battery.charging ? Color.success : (Battery.percentage <= 0.2 ? Color.lowBattery : Color.text)
             font.family: Style.font.family
             font.pixelSize: Style.font.body
             horizontalAlignment: Text.AlignRight
