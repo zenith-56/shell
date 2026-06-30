@@ -53,13 +53,13 @@ QtObject {
     readonly property string refresh: "\uf021"           // nf-fa-refresh
 
     // Bluetooth icons
-    readonly property string bluetooth: "\uf293"         // nf-fa-bluetooth
-    readonly property string bluetoothOff: "\uf294"      // nf-fa-bluetooth_b
-    readonly property string headphones: "\uf026"        // nf-fa-headphones
-    readonly property string speaker: "\uf028"           // nf-fa-volume-high
+    readonly property string bluetooth: "\udb80\udcaf"         // nf-fa-bluetooth
+    readonly property string bluetoothOff: "\udb80\udcb2"      // nf-fa-bluetooth_b
+    readonly property string headphones: "\udb82\udd70"        // nf-fa-headphones
+    readonly property string speaker: "\udb82\udda2"           // nf-fa-volume-high
     readonly property string check: "\uf00c"             // nf-fa-check
     readonly property string times: "\uf00d"             // nf-fa-times
-    readonly property string trash: "\uf1f8"             // nf-fa-trash
+    readonly property string trash: "\uf48e"             // nf-fa-trash
     readonly property string link: "\uf0c1"              // nf-fa-link
 
     // Returns volume icon based on level
