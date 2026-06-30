@@ -45,6 +45,7 @@ PanelWindow {
             spacing: 16
 
             AudioIndicator { Layout.alignment: Qt.AlignVCenter }
+            BluetoothIndicator { Layout.alignment: Qt.AlignVCenter }
             NetworkIndicator { Layout.alignment: Qt.AlignVCenter }
             BatteryIndicator { Layout.alignment: Qt.AlignVCenter }
         }

@@ -2,6 +2,7 @@ module Bar
 AudioIndicator 1.0 AudioIndicator.qml
 Bar 1.0 Bar.qml
 BatteryIndicator 1.0 BatteryIndicator.qml
+BluetoothIndicator 1.0 BluetoothIndicator.qml
 Clock 1.0 Clock.qml
 NetworkIndicator 1.0 NetworkIndicator.qml
 WorkspaceIndicator 1.0 WorkspaceIndicator.qml
