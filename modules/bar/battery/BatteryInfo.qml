@@ -6,13 +6,13 @@ import "../../../Commons"
 import "../../../services"
 import "../../../utils"
 
-ColumnLayout {
+RowLayout {
     id: batteryInfo
 
     property real percentage: Battery.percentage
     property bool charging: Battery.charging
 
-    spacing: 4
+    spacing: 12
 
     // Large battery icon
     Text {
@@ -20,27 +20,38 @@ ColumnLayout {
         color: Battery.charging ? Color.success : Color.text
         font.family: Style.font.family
         font.pixelSize: Style.font.iconLarge
-        Layout.alignment: Qt.AlignHCenter
+        Layout.alignment: Qt.AlignVCenter
     }
 
-    // Percentage text
-    Text {
-        text: Math.round(percentage * 100) + "%"
-        color: Color.text
-        font.family: Style.font.family
-        font.pixelSize: Style.font.large
-        font.bold: true
-        Layout.alignment: Qt.AlignHCenter
+    // Spacer to push text to the right
+    Item {
+        Layout.fillWidth: true
     }
 
-    // Charging status - fixed width to prevent layout shift
-    Text {
-        text: "● " + (charging ? "Charging" : "Discharging")
-        color: Battery.charging ? Color.success : Color.text
-        font.family: Style.font.family
-        font.pixelSize: Style.font.body
-        Layout.alignment: Qt.AlignHCenter
-        Layout.minimumWidth: 120
-        horizontalAlignment: Text.AlignHCenter
+    // Right side: percentage + status
+    ColumnLayout {
+        spacing: 2
+        Layout.alignment: Qt.AlignVCenter
+
+        // Percentage text
+        Text {
+            text: Math.round(percentage * 100) + "%"
+            color: Color.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.large
+            font.bold: true
+            horizontalAlignment: Text.AlignRight
+            Layout.alignment: Qt.AlignRight
+        }
+
+        // Charging status
+        Text {
+            text: "● " + (charging ? "Charging" : "Discharging")
+            color: Battery.charging ? Color.success : Color.text
+            font.family: Style.font.family
+            font.pixelSize: Style.font.body
+            horizontalAlignment: Text.AlignRight
+            Layout.alignment: Qt.AlignRight
+        }
     }
 }
