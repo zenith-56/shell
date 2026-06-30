@@ -9,16 +9,16 @@ import "network"
 Item {
     id: network
 
-    width: iconText.implicitWidth
-    height: iconText.implicitHeight
+    implicitWidth: Style.font.indicator + 2
+    height: BarConfig.height
 
     Text {
         id: iconText
+        anchors.centerIn: parent
         text: Network.connected ? Icons.signalIcon(Network.signalStrength) : Icons.ethernet
         color: BarConfig.textColor
         font.family: Style.font.family
         font.pixelSize: Style.font.indicator
-        verticalAlignment: Text.AlignVCenter
     }
 
     MouseArea {

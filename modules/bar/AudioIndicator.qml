@@ -9,17 +9,16 @@ import "audio"
 Item {
     id: audio
 
-    width: iconText.implicitWidth
-    height: iconText.implicitHeight
+    implicitWidth: Style.font.indicator + 2
+    height: BarConfig.height
 
-    // Volume icon using centralized Icons
     Text {
         id: iconText
+        anchors.centerIn: parent
         text: Icons.volumeIcon(Audio.muted, Audio.volume)
         color: BarConfig.textColor
         font.family: Style.font.family
         font.pixelSize: Style.font.title
-        verticalAlignment: Text.AlignVCenter
     }
 
     // Show OSD when volume changes

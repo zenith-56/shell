@@ -9,11 +9,12 @@ import "bluetooth"
 Item {
     id: bluetooth
 
-    width: iconText.implicitWidth
-    height: iconText.implicitHeight
+    implicitWidth: Style.font.indicator + 2
+    height: BarConfig.height
 
     Text {
         id: iconText
+        anchors.centerIn: parent
         text: {
             if (!Bluetooth.enabled) return Icons.bluetoothOff;
             if (Bluetooth.connectedDevice) return Icons.headphones;
@@ -21,8 +22,7 @@ Item {
         }
         color: Bluetooth.connectedDevice ? Color.success : BarConfig.textColor
         font.family: Style.font.family
-        font.pixelSize: Bluetooth.connectedDevice ? Style.font.indicator + 2 : Style.font.indicator
-        verticalAlignment: Text.AlignVCenter
+        font.pixelSize: Bluetooth.connectedDevice ? Style.font.indicator + 8 : Style.font.indicator
     }
 
     MouseArea {

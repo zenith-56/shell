@@ -9,16 +9,16 @@ import "battery"
 Item {
     id: battery
 
-    width: iconText.implicitWidth
-    height: iconText.implicitHeight
+    implicitWidth: Style.font.indicator + 2
+    height: BarConfig.height
 
     Text {
         id: iconText
+        anchors.centerIn: parent
         text: Icons.batteryIcon(Battery.available, Battery.charging, Battery.percentage)
         color: Battery.percentage <= 0.2 && !Battery.charging ? Color.lowBattery : BarConfig.textColor
         font.family: Style.font.family
         font.pixelSize: Style.font.indicator
-        verticalAlignment: Text.AlignVCenter
     }
 
     // Click target for the entire indicator
