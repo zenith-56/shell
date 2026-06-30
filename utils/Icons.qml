@@ -23,7 +23,7 @@ QtObject {
     readonly property string battery90: "\udb80\udc82"        // nf-md-battery_90
     readonly property string battery80: "\udb80\udc81"        // nf-md-battery_80
     readonly property string battery70: "\udb80\udc80"        // nf-md-battery_70
-    readonly property string battery60: "\udb81\udc44"        // nf-md-battery_60
+    readonly property string battery60: "\udb80\udc7f"        // nf-md-battery_60
     readonly property string battery50: "\udb80\udc7e"        // nf-md-battery_50
     readonly property string battery40: "\udb80\udc7d"        // nf-md-battery_40
     readonly property string battery30: "\udb80\udc7c"        // nf-md-battery_30

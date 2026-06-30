@@ -3,7 +3,7 @@
 ## File Size
 
 - Keep files **small and focused**. Each file should handle a single responsibility.
-- Aim for **under 80 lines** per file. If a file exceeds this, consider splitting it.
+- Aim for **under 80 lines** per file. If a file exceeds this, consider splitting.
 
 ## Specificity
 
@@ -38,11 +38,24 @@
 - **Do not modify or move icons in Icons.qml.** The user has manually set specific glyphs. Never change them without explicit permission.
 - **Always test before committing.** Run `quickshell -c ~/projects/shell` to verify no errors.
 
+## Popup Management
+
+- **PopupManager singleton** (`Commons/PopupManager.qml`) handles mutual exclusion between popups.
+- All popups extending `BasePopup` auto-register with PopupManager on `show()` and unregister on hide.
+- When a popup opens, `PopupManager.closeOthers(self)` closes all other tracked popups.
+- **Volume OSD is independent** — it uses a separate `PopupWindow` + invisible `PanelWindow` anchor, does NOT register with PopupManager, and does not affect other popups.
+- Clicking the bar background calls `PopupManager.closeAll()` to close all popups.
+- **PopupWindow cannot be referenced by `id` from sibling components** — it's a Wayland surface. Popups must be children of their trigger component (e.g., `BluetoothPopup` inside `BluetoothIndicator`).
+
 ## Architecture
 
-- **Commons/** — Shared singletons (Color, Style, Util, BarConfig, Config). Module: `qs.Commons`.
-- **services/** — System integration singletons (battery, network, audio, time).
-- **modules/** — UI feature modules organized by component (e.g., `bar/`).
-- **utils/** — Shared helpers (paths, icons).
-- **components/** — Reusable QML primitives (empty, for future use).
-- **assets/** — Static resources (empty, for future use).
+- **Commons/** — Shared singletons (Color, Style, Util, BarConfig, Config, PopupManager). Module: `qs.Commons`.
+- **services/** — System integration singletons (Audio, Battery, Bluetooth, Network, PowerProfile, Time, Workspaces).
+- **modules/** — UI feature modules organized by component.
+  - `bar/` — Status bar (Bar, Clock, indicators).
+  - `bar/audio/` — Volume OSD (AudioOsd via PanelWindow+PopupWindow).
+  - `bar/bluetooth/` — Bluetooth popup (BluetoothPopup).
+  - `bar/battery/` — Battery popup + power profiles.
+  - `bar/network/` — Network popup + WiFi password dialog.
+- **utils/** — Shared helpers (Icons, Paths).
+- **components/** — Reusable QML primitives (BasePopup, Divider, IconButton, ToggleSwitch).

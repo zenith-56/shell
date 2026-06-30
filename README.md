@@ -5,35 +5,53 @@ Modular Wayland status bar built with [Quickshell](https://quickshell.org) for N
 ## Project Structure
 
 ```
-shell.qml                  # Entry point
-Commons/                   # Shared singletons (qs.Commons module)
-  Color.qml                # Global color palette
-  Style.qml                # Spacing, typography, bar dimensions
-  Util.qml                 # Utility functions
-  BarConfig.qml            # Bar appearance settings
-  Config.qml               # JSON config loader (reads shell.json)
-services/                  # System integration singletons
-  Battery.qml              # UPower battery monitoring
-  Network.qml              # NetworkManager/WiFi status (nmcli)
-  Audio.qml                # PipeWire volume control (wpctl)
-  Time.qml                 # Clock with 12/24hr support
-  Workspaces.qml           # Niri workspace tracking
-modules/                   # UI feature modules
-  bar/                     # Status bar components
-    Bar.qml                # Main bar container (PanelWindow)
-    Clock.qml              # Time display with toggle
-    BatteryIndicator.qml   # Battery icon + popup
-    NetworkIndicator.qml   # Network icon + SSID
-    AudioIndicator.qml     # Volume icon + mute toggle
-    Workspaces.qml         # Workspace indicators
-    battery/               # Battery popup sub-module
-      BatteryPopup.qml     # Detailed battery info popup
-      BatteryInfo.qml      # Icon, percentage, status
-      BatteryWatts.qml     # Power consumption
-      BatteryHealth.qml    # Health, capacity, model
-utils/                     # Shared helpers
-  Paths.qml                # Filesystem path constants
-  Icons.qml                # Icon theme resolver
+shell.qml                          # Entry point
+shell.json                         # Runtime config (hot-reload)
+Commons/                           # Shared singletons (qs.Commons)
+  Color.qml                        # Global color palette
+  Style.qml                        # Spacing, typography tokens
+  Util.qml                         # Utility functions
+  BarConfig.qml                    # Bar appearance settings
+  Config.qml                       # JSON config loader
+  PopupManager.qml                 # Popup mutual exclusion
+services/                          # System integration singletons
+  Audio.qml                        # PipeWire volume (wpctl)
+  Battery.qml                      # UPower battery monitoring
+  Bluetooth.qml                    # Quickshell.Bluetooth native API
+  Network.qml                      # Quickshell.Networking native API
+  PowerProfile.qml                 # Power profiles (D-Bus)
+  Time.qml                         # Clock (12h/24h)
+  Workspaces.qml                   # Niri workspace tracking (IPC)
+modules/                           # UI feature modules
+  bar/
+    Bar.qml                        # Main bar (PanelWindow)
+    Clock.qml                      # Time display
+    AudioIndicator.qml             # Volume icon + OSD trigger
+    BluetoothIndicator.qml         # Bluetooth icon + popup
+    NetworkIndicator.qml           # Network icon + popup
+    BatteryIndicator.qml           # Battery icon + popup
+    WorkspaceIndicator.qml         # Workspace dots
+    audio/
+      AudioOsd.qml                 # Volume OSD (PanelWindow + PopupWindow)
+    bluetooth/
+      BluetoothPopup.qml           # Device list, scan, pair
+    battery/
+      BatteryPopup.qml             # Battery info + power profiles
+      BatteryInfo.qml              # Icon, percentage, status
+      BatteryWatts.qml             # Power consumption
+      BatteryHealth.qml            # Health, capacity, model
+      PowerProfileSelector.qml     # Power profile buttons
+    network/
+      NetworkPopup.qml             # WiFi network list
+      PasswordDialog.qml           # WiFi password input
+components/                        # Reusable QML primitives (qs.components)
+  BasePopup.qml                    # Popup base class (PopupWindow)
+  Divider.qml                      # Horizontal divider
+  IconButton.qml                   # Circular icon button
+  ToggleSwitch.qml                 # Sliding toggle
+utils/                             # Shared helpers (qs.utils)
+  Icons.qml                        # Nerd Font glyphs
+  Paths.qml                        # Filesystem paths
 ```
 
 ## Install
@@ -50,11 +68,23 @@ quickshell -c ~/projects/shell
 
 ## Services
 
+- **Audio** — PipeWire volume control via wpctl (polls 100ms)
 - **Battery** — UPower battery monitoring with charge-level icons
-- **Network** — NetworkManager/WiFi status via nmcli (polls every 10s)
-- **Audio** — PipeWire volume control via wpctl (polls every 1s)
+- **Bluetooth** — Quickshell.Bluetooth native D-Bus API (pair/connect/disconnect/scan)
+- **Network** — Quickshell.Networking native API (WiFi scan/connect, signal strength)
+- **PowerProfile** — Power profiles via busctl D-Bus (power-saver/balanced/performance)
 - **Time** — Live clock with 12/24hr format support
-- **Workspaces** — Dynamic Niri workspace tracking
+- **Workspaces** — Dynamic Niri workspace tracking via IPC (polls 500ms)
+
+## Features
+
+- Dynamic workspace indicators
+- Bluetooth device management (pair, connect, disconnect, remove, scan)
+- WiFi network scanning and connection (WPA/WPA2 support)
+- Volume OSD with auto-hide
+- Battery info with power profile selector
+- Mutual exclusion popups (only one open at a time)
+- Click bar background to close all popups
 
 ## Configuration
 
@@ -62,12 +92,12 @@ Edit `shell.json` to customize bar appearance and enabled modules. Changes hot-r
 
 ## Dependencies
 
-- [quickshell](https://quickshell.org) (v0.1.0+)
-- upower (battery service)
-- networkmanager (network service)
-- pipewire + wireplumber (audio service)
+- [quickshell](https://quickshell.org) (v0.3.0+)
+- pipewire + wireplumber (audio)
+- upower (battery)
+- networkmanager (network)
 - niri (compositor)
 
 ## Conventions
 
-See [AGENTS.md](AGENTS.md) for coding conventions and architecture rules.
+See [AGENTS.md](AGENTS.md) for coding conventions, architecture rules, and popup management patterns.
