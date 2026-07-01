@@ -2,13 +2,44 @@
     "bar": {
         "height": 32,
         "position": "top",
-        "modules": ["clock", "workspaces", "battery", "network"]
+        "layout": {
+            "left": [
+                "launcher",
+                "workspaces"
+            ],
+            "center": [
+                "clock"
+            ],
+            "right": [
+                "network",
+                "bluetooth",
+                "battery",
+                "audio"
+            ]
+        }
     },
-    "appearance": {
-        "backgroundColor": "#cc000000",
-        "textColor": "#ffffff",
-        "accentColor": "#89b4fa",
-        "font": "FiraCode Nerd Font",
-        "fontSize": 14
+    "theme": {
+        "background": "#000000",
+        "surface": "#1a1a1a",
+        "text": "#ffffff",
+        "textMuted": "#999999",
+        "divider": "#333333",
+        "accent": "#ffffff",
+        "success": "#4ade80",
+        "lowBattery": "#ef4444"
+    },
+    "fonts": {
+        "family": "FiraCode Nerd Font",
+        "caption": 10,
+        "body": 12,
+        "title": 14,
+        "heading": 16,
+        "large": 20,
+        "indicator": 16,
+        "icon": 24,
+        "iconLarge": 40
+    },
+    "plugins": {
+        "lockscreen": true
     }
 }

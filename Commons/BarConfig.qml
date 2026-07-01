@@ -1,5 +1,6 @@
 // Bar appearance configuration singleton.
 // Controls height, position, fonts, and which modules are displayed.
+// Reads from ConfigLoader (shell.json) when available.
 pragma Singleton
 import Quickshell
 import QtQuick
@@ -7,14 +8,14 @@ import QtQuick
 Singleton {
     id: root
 
-    property int height: 32                                       // Bar height in pixels
-    property string position: "top"                               // Bar position: "top" or "bottom"
-    property color backgroundColor: Color.background              // Background color from palette
-    property color textColor: Color.text                          // Text color from palette
-    property color accentColor: Color.text                          // White accent
-    property real radius: 0                                       // Corner radius (0 = sharp)
-    property string fontFamily: "FiraCode Nerd Font"              // Font family for all bar text
-    property real fontSize: 14                                    // Font size in pixels
-    property var modules: ["clock", "workspaces", "battery", "network"]  // Active bar modules
-    property string screen: ""                                        // Screen name (empty = default)
+    property int height: ConfigLoader.raw !== undefined && ConfigLoader.raw.bar ? ConfigLoader.raw.bar.height : 32
+    property string position: ConfigLoader.raw !== undefined && ConfigLoader.raw.bar ? ConfigLoader.raw.bar.position : "top"
+    property color backgroundColor: ConfigLoader.themeBackground
+    property color textColor: ConfigLoader.themeText
+    property color accentColor: ConfigLoader.themeAccent
+    property real radius: 0
+    property string fontFamily: ConfigLoader.fontFamily
+    property real fontSize: ConfigLoader.fontBody
+    property var modules: ["clock", "workspaces", "battery", "network"]
+    property string screen: ""
 }

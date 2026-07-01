@@ -7,7 +7,7 @@ import Quickshell.Wayland
 import "../../../Commons"
 import "../../../services"
 import "../../../utils"
-import "../../../UI"
+import "../../../Ui"
 
 PanelWindow {
     id: root
