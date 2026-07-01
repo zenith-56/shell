@@ -1,5 +1,5 @@
 // Network service singleton.
-// Uses Quickshell.Networking native API for reactive state.
+// Uses Quickshell.Networking native API for fully reactive state.
 pragma Singleton
 import Quickshell
 import Quickshell.Networking
@@ -8,15 +8,8 @@ import QtQuick
 Singleton {
     id: root
 
-    property var wifiDevice: null
-    readonly property bool connected: wifiDevice ? wifiDevice.connected : false
-    readonly property bool wifi: wifiDevice !== null
-    property bool wifiEnabled: Networking.wifiEnabled
-    property string ssid: ""
-    property int signalStrength: 0
-    property var availableNetworks: []
-
-    function findWifiDevice() {
+    // Reactive: Find the first WiFi device in the system
+    readonly property var wifiDevice: {
         var devs = Networking.devices.values;
         if (!devs) return null;
         for (var i = 0; i < devs.length; i++) {
@@ -25,24 +18,31 @@ Singleton {
         return null;
     }
 
-    function updateConnectedState() {
-        if (!wifiDevice) { ssid = ""; signalStrength = 0; return; }
+    // Reactive connection properties
+    readonly property bool connected: wifiDevice ? wifiDevice.connected : false
+    readonly property bool wifi: wifiDevice !== null
+    readonly property bool wifiEnabled: Networking.wifiEnabled
+
+    // Current connected network helper
+    readonly property var connectedNetwork: {
+        if (!wifiDevice) return null;
         var nets = wifiDevice.networks.values;
-        if (!nets) return;
+        if (!nets) return null;
         for (var i = 0; i < nets.length; i++) {
-            if (nets[i].connected) {
-                ssid = nets[i].name;
-                signalStrength = Math.round((nets[i].signalStrength || 0) * 100);
-                return;
-            }
+            if (nets[i].connected) return nets[i];
         }
-        ssid = ""; signalStrength = 0;
+        return null;
     }
 
-    function updateAvailableNetworks() {
-        if (!wifiDevice) { availableNetworks = []; return; }
+    // Current SSID and signal strength
+    readonly property string ssid: connectedNetwork ? (connectedNetwork.name || "") : ""
+    readonly property int signalStrength: connectedNetwork ? Math.round((connectedNetwork.signalStrength || 0) * 100) : 0
+
+    // Reactive list of available networks, sorted by signal strength
+    readonly property var availableNetworks: {
+        if (!wifiDevice) return [];
         var nets = wifiDevice.networks.values;
-        if (!nets) return;
+        if (!nets) return [];
         var networks = [];
         for (var i = 0; i < nets.length; i++) {
             var n = nets[i];
@@ -56,59 +56,41 @@ Singleton {
             });
         }
         networks.sort(function(a, b) { return b.signal - a.signal; });
-        availableNetworks = networks;
+        return networks;
     }
 
-    Timer {
-        interval: 3000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            if (!root.wifiDevice) root.wifiDevice = root.findWifiDevice();
-            root.wifiEnabled = Networking.wifiEnabled;
-            root.updateConnectedState();
+    // Toggle WiFi state
+    function toggleWifi(): void {
+        Networking.wifiEnabled = !Networking.wifiEnabled;
+    }
+
+    // Enable network scanning
+    function scanNetworks(): void {
+        if (wifiDevice) {
+            wifiDevice.scannerEnabled = true;
         }
     }
 
-    function toggleWifi() {
-        Networking.wifiEnabled = !Networking.wifiEnabled;
-        wifiEnabled = Networking.wifiEnabled;
-    }
-
-    function scanNetworks() {
-        if (!wifiDevice) return;
-        wifiDevice.scannerEnabled = true;
-        scanRefreshTimer.restart();
-    }
-
-    Timer {
-        id: scanRefreshTimer
-        interval: 4000
-        onTriggered: root.updateAvailableNetworks()
-    }
-
-    Timer {
-        interval: 2000
-        running: wifiDevice ? wifiDevice.scannerEnabled : false
-        repeat: true
-        onTriggered: root.updateAvailableNetworks()
-    }
-
-    function connect(ssid: string, password: string) {
-        for (var i = 0; i < availableNetworks.length; i++) {
-            if (availableNetworks[i].ssid === ssid) {
-                var net = availableNetworks[i].networkObj;
-                if (password.length > 0 && net instanceof WifiNetwork)
+    // Connect to a network
+    function connect(ssid: string, password: string): void {
+        var nets = availableNetworks;
+        for (var i = 0; i < nets.length; i++) {
+            if (nets[i].ssid === ssid) {
+                var net = nets[i].networkObj;
+                if (password.length > 0 && net instanceof WifiNetwork) {
                     net.connectWithPsk(password);
-                else
+                } else {
                     net.connect();
+                }
                 return;
             }
         }
     }
 
-    function disconnect() {
-        if (wifiDevice) wifiDevice.disconnect();
+    // Disconnect from the current network
+    function disconnect(): void {
+        if (wifiDevice) {
+            wifiDevice.disconnect();
+        }
     }
 }

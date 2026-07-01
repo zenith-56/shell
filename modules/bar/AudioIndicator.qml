@@ -22,7 +22,7 @@ Item {
 
     Connections {
         target: Audio
-        function onVolumeChangedSignal() {
+        function onVolumeChanged() {
             audioPopup.showing = true
         }
     }

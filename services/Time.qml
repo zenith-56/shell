@@ -1,5 +1,5 @@
 // Time service singleton.
-// Provides a live clock that updates every second.
+// Provides a live clock that updates reactively using SystemClock.
 // Supports 12-hour and 24-hour format.
 pragma Singleton
 import Quickshell
@@ -8,45 +8,36 @@ import QtQuick
 Singleton {
     id: root
 
-    property string time: ""       // Formatted time string (e.g., "14:30" or "2:30 PM")
-    property string date: ""       // Formatted date string (e.g., "Mon Jun 28")
-    property int hour: 0           // Current hour (0-23)
-    property int minute: 0         // Current minute (0-59)
-    property bool is24Hour: true   // Toggle between 24h and 12h format
+    // Toggle between 24h and 12h format
+    property bool is24Hour: true
+
+    // System clock source using Minute precision to minimize updates
+    SystemClock {
+        id: clock
+        precision: SystemClock.Minutes
+    }
+
+    // Reactive time and date properties
+    readonly property string time: formattedTime()
+    readonly property string date: formattedDate()
+    readonly property int hour: clock.hours
+    readonly property int minute: clock.minutes
 
     // Returns formatted time based on current format setting
     function formattedTime(): string {
         if (is24Hour) {
-            return Qt.formatDateTime(new Date(), "HH:mm")
+            return Qt.formatDateTime(clock.date, "HH:mm")
         }
-        return Qt.formatDateTime(new Date(), "h:mm AP")
+        return Qt.formatDateTime(clock.date, "h:mm AP")
     }
 
     // Returns formatted date (e.g., "Mon Jun 28")
     function formattedDate(): string {
-        return Qt.formatDateTime(new Date(), "ddd MMM d")
+        return Qt.formatDateTime(clock.date, "ddd MMM d")
     }
 
     // Returns expanded date for click display (e.g., "Monday - 06/28/26")
     function expandedDate(): string {
-        return Qt.formatDateTime(new Date(), "dddd - MM/dd/yy")
-    }
-
-    // 1-second timer that triggers clock updates
-    Timer {
-        interval: 1000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: root._update()
-    }
-
-    // Internal: refresh all time properties from current system time
-    function _update(): void {
-        const now = new Date()
-        root.hour = now.getHours()
-        root.minute = now.getMinutes()
-        root.time = formattedTime()
-        root.date = formattedDate()
+        return Qt.formatDateTime(clock.date, "dddd - MM/dd/yy")
     }
 }

@@ -1,54 +1,40 @@
 // Power profile service singleton.
-// Manages power profiles via power-profiles-daemon D-Bus API.
+// Manages power profiles via native Quickshell UPower service.
 pragma Singleton
 import Quickshell
-import Quickshell.Io
+import Quickshell.Services.UPower
 import QtQuick
 
 Singleton {
     id: root
 
-    property string activeProfile: "balanced"
-    property var profiles: ["power-saver", "balanced", "performance"]
-
-    Component.onCompleted: updateProfile()
-
-    Timer {
-        interval: 2000
-        running: true
-        repeat: true
-        onTriggered: root.updateProfile()
-    }
-
-    function updateProfile() {
-        getProfileProc.running = true;
-    }
-
-    property Process getProfileProc: Process {
-        id: getProfileProc
-        command: ["busctl", "get-property", "org.freedesktop.UPower.PowerProfiles",
-                   "/org/freedesktop/UPower/PowerProfiles",
-                   "org.freedesktop.UPower.PowerProfiles", "ActiveProfile"]
-        stdout: StdioCollector {
-            waitForEnd: true
-            onStreamFinished: {
-                var match = text.match(/s\s+"([^"]+)"/);
-                if (match) {
-                    root.activeProfile = match[1];
-                }
-            }
+    // Reactive active power profile string
+    property string activeProfile: {
+        switch (PowerProfiles.profile) {
+            case PowerProfile.PowerSaver: return "power-saver";
+            case PowerProfile.Balanced: return "balanced";
+            case PowerProfile.Performance: return "performance";
+            default: return "balanced";
         }
     }
 
-    function setProfile(profile: string): void {
-        root.activeProfile = profile;
-        setProfileProc.command = ["busctl", "set-property", "org.freedesktop.UPower.PowerProfiles",
-                                   "/org/freedesktop/UPower/PowerProfiles",
-                                   "org.freedesktop.UPower.PowerProfiles", "ActiveProfile", "s", profile];
-        setProfileProc.running = true;
-    }
+    // Available power profiles
+    readonly property var profiles: ["power-saver", "balanced", "performance"]
 
-    property Process setProfileProc: Process {
-        id: setProfileProc
+    // Change the system power profile safely
+    function setProfile(profile: string): void {
+        switch (profile) {
+            case "power-saver":
+                PowerProfiles.profile = PowerProfile.PowerSaver;
+                break;
+            case "balanced":
+                PowerProfiles.profile = PowerProfile.Balanced;
+                break;
+            case "performance":
+                if (PowerProfiles.hasPerformanceProfile) {
+                    PowerProfiles.profile = PowerProfile.Performance;
+                }
+                break;
+        }
     }
 }

@@ -1,76 +1,43 @@
 // Audio service singleton.
-// Manages volume level, mute state, and provides volume icons.
-// Uses wpctl (WirePlumber) for volume control.
+// Manages volume level and mute state.
+// Uses Quickshell.Services.Pipewire for native, reactive audio control.
 pragma Singleton
 import Quickshell
-import Quickshell.Io
+import Quickshell.Services.Pipewire
 import QtQuick
 
 Singleton {
     id: root
 
-    property real volume: 0.5
-    property bool muted: false
-    property string sinkName: ""
+    // Reference to the default audio playback sink
+    readonly property PwNode sink: Pipewire.defaultAudioSink
 
-    signal volumeChangedSignal()
+    // Reactive volume property (0.0 to 1.0)
+    readonly property real volume: sink && sink.ready && sink.audio ? sink.audio.volume : 0.0
 
-    Timer {
-        interval: 100
-        running: true
-        repeat: true
-        onTriggered: root.updateVolume()
+    // Reactive mute state property
+    readonly property bool muted: sink && sink.ready && sink.audio ? sink.audio.muted : false
+
+    // Device description or name
+    readonly property string sinkName: sink && sink.ready ? (sink.description || sink.name || "") : ""
+
+    // Track the default sink object to ensure its properties remain active
+    PwObjectTracker {
+        objects: [Pipewire.defaultAudioSink]
     }
 
-    Component.onCompleted: updateVolume()
-
-    function updateVolume() {
-        volumeProc.running = true;
-    }
-
-    property Process volumeProc: Process {
-        id: volumeProc
-        command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
-        stdout: StdioCollector {
-            waitForEnd: true
-            onStreamFinished: {
-                var output = text.trim();
-                var match = output.match(/Volume:\s+([\d.]+)/);
-                if (match) {
-                    var newVol = parseFloat(match[1]);
-                    if (!isNaN(newVol) && newVol >= 0 && newVol <= 1 && Math.abs(newVol - root.volume) > 0.001) {
-                        root.volume = newVol;
-                        root.volumeChangedSignal();
-                    }
-                }
-                var newMuted = output.includes("[MUTED]");
-                if (newMuted !== root.muted) {
-                    root.muted = newMuted;
-                    root.volumeChangedSignal();
-                }
-            }
+    // Set the default playback sink volume safely
+    function setVolume(v: real): void {
+        var clamped = Math.max(0, Math.min(1, v));
+        if (sink && sink.ready && sink.audio) {
+            sink.audio.volume = clamped;
         }
     }
 
-    function setVolume(v: real): void {
-        var clamped = Math.max(0, Math.min(1, v));
-        root.volume = clamped;
-        setVolumeProc.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", clamped.toString()];
-        setVolumeProc.running = true;
-    }
-
-    property Process setVolumeProc: Process {
-        id: setVolumeProc
-        command: ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", "0.5"]
-    }
-
+    // Toggle the mute state of the default playback sink safely
     function toggleMute(): void {
-        root.muted = !root.muted;
-        toggleMuteProc.running = true;
-    }
-
-    property Process toggleMuteProc: Process {
-        id: toggleMuteProc
-        command: ["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]
+        if (sink && sink.ready && sink.audio) {
+            sink.audio.muted = !sink.audio.muted;
+        }
     }
 }
