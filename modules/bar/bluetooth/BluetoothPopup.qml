@@ -17,8 +17,9 @@ PanelWindow {
     property bool cursorActive: false
     property string pendingRemoveAddress: ""
     property string pendingRemoveName: ""
+    property bool _closing: false
 
-    visible: isOpen
+    visible: isOpen || _closing
     implicitWidth: 400
     implicitHeight: 500
     exclusionMode: ExclusionMode.Ignore
@@ -28,12 +29,16 @@ PanelWindow {
     anchors { top: true; bottom: true; left: true; right: true }
     color: "transparent"
 
-    onVisibleChanged: {
-        if (visible) {
+    onIsOpenChanged: {
+        if (isOpen) {
             Bluetooth.refreshAvailable()
             deviceIndex = -1; cursorActive = false
             pendingRemoveAddress = ""; pendingRemoveName = ""
+            _closing = false
+            enterAnim.restart()
             Qt.callLater(() => card.forceActiveFocus())
+        } else {
+            exitAnim.restart()
         }
     }
 
@@ -44,15 +49,33 @@ PanelWindow {
     }
     function isPaired(idx) { return idx < Bluetooth.pairedDevices.length }
 
+    SequentialAnimation {
+        id: enterAnim
+        ParallelAnimation {
+            Anim { target: card; property: "opacity"; from: 0; to: 1; type: Anim.DefaultEffects }
+            Anim { target: card; property: "y"; from: 6; to: PopupControl.barHeight + 4; type: Anim.DefaultSpatial }
+        }
+    }
+
+    SequentialAnimation {
+        id: exitAnim
+        ParallelAnimation {
+            Anim { target: card; property: "opacity"; from: 1; to: 0; type: Anim.FastEffects }
+            Anim { target: card; property: "y"; from: PopupControl.barHeight + 4; to: 6; type: Anim.FastEffects }
+        }
+        ScriptAction { script: _closing = false }
+    }
+
     MouseArea { anchors.fill: parent; onClicked: PopupControl.close() }
 
     Rectangle {
         id: card
         width: 380; height: 520
         x: Math.max(8, Math.min(PopupControl.anchorX + PopupControl.anchorWidth - width, parent.width - width - 8))
-        anchors.top: parent.top; anchors.topMargin: PopupControl.barHeight + 4
+        y: PopupControl.barHeight + 4
         color: Color.background; radius: 8
         clip: true
+        opacity: 0
 
         Keys.onEscapePressed: PopupControl.close()
         Keys.onPressed: function(event) {
@@ -110,7 +133,7 @@ PanelWindow {
                     width: 44; height: 24; radius: 12
                     color: Bluetooth.enabled ? Color.success : Color.divider
                     anchors.verticalCenter: parent.verticalCenter
-                    Rectangle { x: Bluetooth.enabled ? 22 : 2; y: 2; width: 20; height: 20; radius: 10; color: Color.text; Behavior on x { NumberAnimation { duration: 150 } } }
+                    Rectangle { x: Bluetooth.enabled ? 22 : 2; y: 2; width: 20; height: 20; radius: 10; color: Color.text; Behavior on x { Anim { type: Anim.FastEffects } } }
                     MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Bluetooth.toggle() }
                 }
             }
@@ -217,6 +240,11 @@ PanelWindow {
             anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
             anchors.margins: 14; height: 32; radius: 6
             color: scanArea.containsMouse ? Color.divider : "transparent"
+
+            Behavior on color {
+                CAnim { animType: Anim.FastEffects }
+            }
+
             Row { anchors.centerIn: parent; spacing: 6
                 Text { text: Bluetooth.scanning ? Icons.times : Icons.refresh; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body }
                 Text { text: Bluetooth.scanning ? "Stop Scan" : "Scan"; color: Color.text; font.family: Style.font.family; font.pixelSize: Style.font.body }

@@ -1,12 +1,12 @@
-// Application launcher popup.
+// Application launcher popup
 // Shows a searchable list of installed applications.
-// Uses PanelWindow with WlrKeyboardFocus.Exclusive for native keyboard focus.
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "../../../Commons"
 import "../../../services"
+import "../../../Ui"
 
 PanelWindow {
     id: launcherPopup
@@ -14,11 +14,12 @@ PanelWindow {
     property int selectedIndex: 0
     property var filteredApps: []
     property int filteredCount: 0
+    property bool _visible: false
 
     implicitWidth: 400
     implicitHeight: 500
     color: "transparent"
-    visible: LauncherState.isOpen
+    visible: _visible
     exclusionMode: ExclusionMode.Ignore
 
     WlrLayershell.namespace: "quickshell-launcher"
@@ -28,13 +29,41 @@ PanelWindow {
     anchors { top: true; bottom: true; left: true; right: true }
 
     onVisibleChanged: {
-        if (!visible && LauncherState.isOpen) LauncherState.isOpen = false;
         if (visible) {
             filterApps("");
             searchBar.clear();
             selectedIndex = 0;
+            enterAnim.restart()
             Qt.callLater(() => { if (visible) searchBar.input.forceActiveFocus(); });
         }
+    }
+
+    Connections {
+        target: LauncherState
+        function onIsOpenChanged() {
+            if (LauncherState.isOpen) {
+                _visible = true
+            } else if (_visible) {
+                exitAnim.restart()
+            }
+        }
+    }
+
+    SequentialAnimation {
+        id: enterAnim
+        ParallelAnimation {
+            Anim { target: card; property: "opacity"; from: 0; to: 1; type: Anim.DefaultEffects }
+            Anim { target: card; property: "y"; from: 6; to: card.cardY; type: Anim.DefaultSpatial }
+        }
+    }
+
+    SequentialAnimation {
+        id: exitAnim
+        ParallelAnimation {
+            Anim { target: card; property: "opacity"; from: 1; to: 0; type: Anim.FastEffects }
+            Anim { target: card; property: "y"; from: card.cardY; to: 6; type: Anim.FastEffects }
+        }
+        ScriptAction { script: _visible = false }
     }
 
     Timer {
@@ -87,7 +116,9 @@ PanelWindow {
         }
     }
 
-    function close(): void { LauncherState.isOpen = false; }
+    function close(): void {
+        LauncherState.isOpen = false;
+    }
 
     MouseArea { anchors.fill: parent; onClicked: launcherPopup.close() }
 
@@ -95,6 +126,11 @@ PanelWindow {
         id: card
         property real cardWidth: 400
         property real cardHeight: 500
+        property real cardY: {
+            var win = LauncherState.anchorWindow;
+            if (!win) return 40;
+            return win.height + 4;
+        }
 
         x: {
             var btn = LauncherState.anchorButtonItem;
@@ -103,13 +139,10 @@ PanelWindow {
             var pos = btn.mapToItem(win.contentItem, 0, 0);
             return Math.max(8, Math.min(pos.x, parent.width - cardWidth - 8));
         }
-        y: {
-            var win = LauncherState.anchorWindow;
-            if (!win) return 40;
-            return win.height + 4;
-        }
+        y: cardY
         width: cardWidth; height: cardHeight
         color: Color.background; radius: 8
+        opacity: 0
 
         MouseArea { anchors.fill: parent }
 

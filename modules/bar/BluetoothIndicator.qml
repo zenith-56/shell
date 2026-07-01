@@ -4,6 +4,7 @@ import QtQuick
 import "../../services"
 import "../../Commons"
 import "../../utils"
+import "../../Ui"
 
 Item {
     id: bluetooth
@@ -23,6 +24,10 @@ Item {
         color: Bluetooth.connectedDevice ? Color.success : BarConfig.textColor
         font.family: Style.font.family
         font.pixelSize: Bluetooth.connectedDevice ? Style.font.indicator + 8 : Style.font.indicator
+
+        Behavior on color {
+            CAnim { animType: Anim.DefaultEffects }
+        }
     }
 
     MouseArea {

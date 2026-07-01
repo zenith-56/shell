@@ -39,6 +39,17 @@
         "icon": 24,
         "iconLarge": 40
     },
+    "anim": {
+        "durations": {
+            "scale": 1.0
+        },
+        "curves": {
+            "spatial": [0.34, 1.56, 0.64, 1],
+            "effects": [0.22, 1, 0.36, 1],
+            "emphasized": [0.34, 1.56, 0.64, 1],
+            "standard": [0.2, 0, 0, 1]
+        }
+    },
     "plugins": {
         "lockscreen": true
     }

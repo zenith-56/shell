@@ -5,6 +5,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 import "../../Commons"
+import "../../Ui"
 
 WlSessionLock {
     id: lock
@@ -14,11 +15,37 @@ WlSessionLock {
     function lock() {
         isLocked = true
         locked = true
+        fadeIn.restart()
     }
 
     function unlock() {
-        isLocked = false
-        locked = false
+        fadeOut.restart()
+    }
+
+    Anim {
+        id: fadeIn
+        target: contentColumn
+        property: "opacity"
+        from: 0
+        to: 1
+        type: Anim.DefaultEffects
+    }
+
+    SequentialAnimation {
+        id: fadeOut
+        Anim {
+            target: contentColumn
+            property: "opacity"
+            from: 1
+            to: 0
+            type: Anim.DefaultEffects
+        }
+        ScriptAction {
+            script: {
+                lock.isLocked = false
+                lock.locked = false
+            }
+        }
     }
 
     surface: WlSessionLockSurface {
@@ -39,8 +66,10 @@ WlSessionLock {
 
             // Center content
             Column {
+                id: contentColumn
                 anchors.centerIn: parent
                 spacing: 8
+                opacity: 0
 
                 Text {
                     id: timeText

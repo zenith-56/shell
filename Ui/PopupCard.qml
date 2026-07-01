@@ -14,6 +14,10 @@ Rectangle {
     implicitWidth: Math.max(200, contentItem.implicitWidth + padding * 2)
     implicitHeight: Math.max(40, contentItem.implicitHeight + padding * 2)
 
+    Behavior on color {
+        ColorAnimation { duration: Commons.Style.anim.fastEffects; easing.type: Easing.BezierSpline; easing.bezierCurve: Commons.Style.anim.bezierEffects }
+    }
+
     Item {
         id: contentItem
         anchors.fill: parent

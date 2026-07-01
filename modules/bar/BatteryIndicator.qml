@@ -4,6 +4,7 @@ import QtQuick
 import "../../Commons"
 import "../../services"
 import "../../utils"
+import "../../Ui"
 
 Item {
     id: battery
@@ -19,6 +20,10 @@ Item {
         color: Battery.percentage <= 0.2 && !Battery.charging ? Color.lowBattery : BarConfig.textColor
         font.family: Style.font.family
         font.pixelSize: Style.font.indicator
+
+        Behavior on color {
+            CAnim { animType: Anim.DefaultEffects }
+        }
     }
 
     MouseArea {

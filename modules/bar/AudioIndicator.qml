@@ -7,13 +7,12 @@ import "../../utils"
 import "audio"
 
 Item {
-    id: audio
+    id: audioIndicator
 
     implicitWidth: Style.font.indicator + 2
     height: BarConfig.height
 
     Text {
-        id: iconText
         anchors.centerIn: parent
         text: Icons.volumeIcon(Audio.muted, Audio.volume)
         color: BarConfig.textColor
@@ -24,11 +23,11 @@ Item {
     Connections {
         target: Audio
         function onVolumeChangedSignal() {
-            audioOsd.showOsd();
+            audioPopup.showing = true
         }
     }
 
-    AudioOsd {
-        id: audioOsd
+    AudioPopup {
+        id: audioPopup
     }
 }

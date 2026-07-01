@@ -1,5 +1,5 @@
 // PanelHero — hero section for popups.
-// Large icon, title, and subtitle.
+// Large icon, title, and subtitle with visibility animations.
 import QtQuick
 import QtQuick.Layouts
 import "../Commons" as Commons
@@ -28,6 +28,7 @@ ColumnLayout {
         font.pixelSize: Commons.Style.font.heading
         color: Commons.Color.text
         Layout.alignment: Qt.AlignHCenter
+        Behavior on opacity { NumberAnimation { duration: Commons.Style.anim.fastEffects } }
     }
 
     Text {
@@ -37,5 +38,6 @@ ColumnLayout {
         font.pixelSize: Commons.Style.font.caption
         color: Commons.Color.textMuted
         Layout.alignment: Qt.AlignHCenter
+        Behavior on opacity { NumberAnimation { duration: Commons.Style.anim.fastEffects } }
     }
 }

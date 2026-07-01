@@ -16,8 +16,9 @@ PanelWindow {
     property bool isOpen: PopupControl.isOpen("battery")
     property int profileIndex: 0
     property bool cursorActive: false
+    property bool _closing: false
 
-    visible: isOpen
+    visible: isOpen || _closing
     implicitWidth: 400
     implicitHeight: 500
     exclusionMode: ExclusionMode.Ignore
@@ -27,12 +28,16 @@ PanelWindow {
     anchors { top: true; bottom: true; left: true; right: true }
     color: "transparent"
 
-    onVisibleChanged: {
-        if (visible) {
+    onIsOpenChanged: {
+        if (isOpen) {
             var idx = PowerProfile.profiles.indexOf(PowerProfile.activeProfile)
             profileIndex = idx >= 0 ? idx : 0
             cursorActive = false
+            _closing = false
+            enterAnim.restart()
             Qt.callLater(() => card.forceActiveFocus())
+        } else {
+            exitAnim.restart()
         }
     }
 
@@ -47,14 +52,32 @@ PanelWindow {
         PowerProfile.setProfile(PowerProfile.profiles[profileIndex])
     }
 
+    SequentialAnimation {
+        id: enterAnim
+        ParallelAnimation {
+            Anim { target: card; property: "opacity"; from: 0; to: 1; type: Anim.DefaultEffects }
+            Anim { target: card; property: "y"; from: 6; to: PopupControl.barHeight + 4; type: Anim.DefaultSpatial }
+        }
+    }
+
+    SequentialAnimation {
+        id: exitAnim
+        ParallelAnimation {
+            Anim { target: card; property: "opacity"; from: 1; to: 0; type: Anim.FastEffects }
+            Anim { target: card; property: "y"; from: PopupControl.barHeight + 4; to: 6; type: Anim.FastEffects }
+        }
+        ScriptAction { script: _closing = false }
+    }
+
     MouseArea { anchors.fill: parent; onClicked: PopupControl.close() }
 
     Rectangle {
         id: card
         width: 380; height: column.implicitHeight + 28
         x: Math.max(8, Math.min(PopupControl.anchorX + PopupControl.anchorWidth - width, parent.width - width - 8))
-        anchors.top: parent.top; anchors.topMargin: PopupControl.barHeight + 4
+        y: PopupControl.barHeight + 4
         color: Color.background; radius: 8
+        opacity: 0
 
         Keys.onEscapePressed: PopupControl.close()
         Keys.onPressed: function(event) {
@@ -123,7 +146,7 @@ PanelWindow {
                     height: barTrack.height; radius: barTrack.radius
                     color: Battery.charging ? Color.success : (Battery.percentage <= 0.2 ? Color.lowBattery : Color.text)
                     width: Math.max(barTrack.height, barTrack.width * Battery.percentage)
-                    Behavior on width { NumberAnimation { duration: 320; easing.type: Easing.OutCubic } }
+                    Behavior on width { Anim { type: Anim.DefaultEffects } }
                 }
             }
 
@@ -174,6 +197,10 @@ PanelWindow {
                         width: (parent.width - parent.parent.spacing * 2) / 3; height: 36
                         color: isActive ? Color.text : (isCursor ? Color.divider : "transparent")
                         radius: 6
+
+                        Behavior on color {
+                            CAnim { animType: Anim.FastEffects }
+                        }
 
                         Text {
                             anchors.centerIn: parent

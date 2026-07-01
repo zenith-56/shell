@@ -30,6 +30,10 @@ RowLayout {
         color: root.checked ? Commons.Color.accent : Commons.Color.divider
         Layout.alignment: Qt.AlignVCenter
 
+        Behavior on color {
+            CAnim { animType: Anim.FastEffects }
+        }
+
         Rectangle {
             x: root.checked ? 16 : 2
             y: 2
@@ -39,7 +43,7 @@ RowLayout {
             color: Commons.Color.text
 
             Behavior on x {
-                NumberAnimation { duration: 150 }
+                Anim { type: Anim.FastEffects }
             }
         }
 

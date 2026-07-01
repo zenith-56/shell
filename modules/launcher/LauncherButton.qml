@@ -3,6 +3,7 @@
 import QtQuick
 import "../../Commons"
 import "../../utils"
+import "../../Ui"
 
 Item {
     id: launcherButton
@@ -15,15 +16,31 @@ Item {
     Text {
         anchors.centerIn: parent
         text: Icons.launcher
-        color: BarConfig.textColor
+        color: LauncherState.isOpen ? Color.textMuted : BarConfig.textColor
         font.family: Style.font.family
         font.pixelSize: Style.font.indicator
+
+        Behavior on color {
+            CAnim { animType: Anim.FastEffects }
+        }
+
+        scale: clickAnim.running ? 0.85 : 1.0
+        Behavior on scale {
+            Anim { type: Anim.FastEffects }
+        }
+    }
+
+    SequentialAnimation {
+        id: clickAnim
+        Anim { target: launcherButton; property: "scale"; to: 0.85; type: Anim.FastEffects }
+        Anim { target: launcherButton; property: "scale"; to: 1.0; type: Anim.FastEffects }
     }
 
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         onClicked: {
+            clickAnim.restart()
             if (LauncherState.isOpen) {
                 LauncherState.hide();
             } else {

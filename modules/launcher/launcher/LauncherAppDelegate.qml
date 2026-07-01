@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import Quickshell.Widgets
 import "../../../Commons"
 import "../../../utils"
+import "../../../Ui"
 
 Rectangle {
     id: root
@@ -13,8 +14,12 @@ Rectangle {
 
     width: ListView.view.width
     height: 40
-    color: "transparent"
+    color: root.isSelected ? Color.divider : "transparent"
     radius: 6
+
+    Behavior on color {
+        CAnim { animType: Anim.FastEffects }
+    }
 
     RowLayout {
         anchors.fill: parent

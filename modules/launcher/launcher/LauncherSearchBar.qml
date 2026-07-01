@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import "../../../Commons"
 import "../../../utils"
+import "../../../Ui"
 
 Rectangle {
     id: root
@@ -15,6 +16,10 @@ Rectangle {
     Layout.preferredHeight: 40
     color: searchInput.activeFocus ? Color.divider : Color.surface
     radius: 8
+
+    Behavior on color {
+        CAnim { animType: Anim.FastEffects }
+    }
 
     RowLayout {
         anchors.fill: parent

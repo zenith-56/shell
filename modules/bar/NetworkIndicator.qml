@@ -4,6 +4,7 @@ import QtQuick
 import "../../services"
 import "../../Commons"
 import "../../utils"
+import "../../Ui"
 
 Item {
     id: network
@@ -16,9 +17,13 @@ Item {
     Text {
         anchors.centerIn: parent
         text: Network.connected ? Icons.signalIcon(Network.signalStrength) : Icons.ethernet
-        color: BarConfig.textColor
+        color: Network.connected ? Color.text : Color.textMuted
         font.family: Style.font.family
         font.pixelSize: Style.font.indicator
+
+        Behavior on color {
+            CAnim { animType: Anim.DefaultEffects }
+        }
     }
 
     MouseArea {

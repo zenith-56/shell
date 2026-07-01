@@ -7,4 +7,8 @@ Rectangle {
     width: parent.width
     height: 1
     color: Qt.rgba(foreground.r, foreground.g, foreground.b, 0.15)
+
+    Behavior on color {
+        ColorAnimation { duration: Style.anim.fastEffects; easing.type: Easing.BezierSpline; easing.bezierCurve: Style.anim.bezierEffects }
+    }
 }

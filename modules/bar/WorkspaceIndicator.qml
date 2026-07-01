@@ -3,6 +3,7 @@
 import QtQuick
 import "../../services"
 import "../../Commons"
+import "../../Ui"
 
 Row {
     id: workspaces
@@ -21,6 +22,10 @@ Row {
             font.family: Style.font.family
             font.pixelSize: Style.font.title
             verticalAlignment: Text.AlignVCenter
+
+            Behavior on color {
+                CAnim { animType: Anim.DefaultEffects }
+            }
         }
     }
 }

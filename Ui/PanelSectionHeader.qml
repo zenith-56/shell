@@ -15,4 +15,8 @@ Text {
     font.bold: true
     font.letterSpacing: 1.2
     text: ""
+
+    Behavior on color {
+        ColorAnimation { duration: Style.anim.fastEffects; easing.type: Easing.BezierSpline; easing.bezierCurve: Style.anim.bezierEffects }
+    }
 }
