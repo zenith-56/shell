@@ -10,6 +10,7 @@ import "modules/launcher/launcher"
 import "modules/bar/battery"
 import "modules/bar/bluetooth"
 import "modules/bar/network"
+import "Plugins/LockScreen"
 
 Scope {
     id: root
@@ -19,6 +20,7 @@ Scope {
     BluetoothPopup { }
     NetworkPopup { }
     Bar { }
+    LockScreen { id: lockScreen }
 
     IpcHandler {
         target: "shell"
@@ -40,6 +42,10 @@ Scope {
         function closePopup(name: string): void {
             if (name === "launcher") LauncherState.hide();
             else if (PopupControl.activePopup === name) PopupControl.close();
+        }
+
+        function lock(): void {
+            lockScreen.lock();
         }
     }
 }

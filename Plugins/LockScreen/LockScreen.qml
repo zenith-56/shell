@@ -4,9 +4,8 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "../../Commons"
 
-QtObject {
+Item {
     id: root
 
     property bool locked: false
@@ -25,13 +24,5 @@ QtObject {
         id: lockProc
         running: false
         command: ["loginctl", "lock-session"]
-    }
-
-    Connections {
-        target: Hyprland
-        function onActiveChanged() {
-            if (!Hyprland.active)
-                root.lock()
-        }
     }
 }
