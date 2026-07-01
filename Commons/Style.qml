@@ -25,32 +25,32 @@ Singleton {
         readonly property real scale: Util.get(ConfigLoader.raw, "anim.durations.scale", 1.0)
 
         // Standard durations
-        readonly property int small: Math.round(200 * scale)
-        readonly property int normal: Math.round(400 * scale)
-        readonly property int large: Math.round(600 * scale)
-        readonly property int extraLarge: Math.round(1000 * scale)
+        readonly property int small: Math.round(100 * scale)
+        readonly property int normal: Math.round(180 * scale)
+        readonly property int large: Math.round(280 * scale)
+        readonly property int extraLarge: Math.round(400 * scale)
 
         // Expressive spatial durations (movement)
-        readonly property int expressiveFastSpatial: Math.round(150 * scale)
-        readonly property int expressiveDefaultSpatial: Math.round(300 * scale)
-        readonly property int expressiveSlowSpatial: Math.round(500 * scale)
+        readonly property int expressiveFastSpatial: Math.round(80 * scale)
+        readonly property int expressiveDefaultSpatial: Math.round(150 * scale)
+        readonly property int expressiveSlowSpatial: Math.round(220 * scale)
 
         // Expressive effects durations (color, opacity)
-        readonly property int expressiveFastEffects: Math.round(100 * scale)
-        readonly property int expressiveDefaultEffects: Math.round(200 * scale)
-        readonly property int expressiveSlowEffects: Math.round(300 * scale)
+        readonly property int expressiveFastEffects: Math.round(60 * scale)
+        readonly property int expressiveDefaultEffects: Math.round(100 * scale)
+        readonly property int expressiveSlowEffects: Math.round(150 * scale)
 
-        // Expressive easing curves
-        readonly property var expressiveFastSpatialCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveFastSpatial", [0.34, 1.56, 0.64, 1])
-        readonly property var expressiveDefaultSpatialCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveDefaultSpatial", [0.34, 1.56, 0.64, 1])
-        readonly property var expressiveSlowSpatialCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveSlowSpatial", [0.34, 1.56, 0.64, 1])
-        readonly property var expressiveFastEffectsCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveFastEffects", [0.22, 1, 0.36, 1])
-        readonly property var expressiveDefaultEffectsCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveDefaultEffects", [0.22, 1, 0.36, 1])
-        readonly property var expressiveSlowEffectsCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveSlowEffects", [0.22, 1, 0.36, 1])
+        // Expressive easing curves — bounce effect with overshoot
+        readonly property var expressiveFastSpatialCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveFastSpatial", [0.34, 1.8, 0.64, 1])
+        readonly property var expressiveDefaultSpatialCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveDefaultSpatial", [0.34, 1.8, 0.64, 1])
+        readonly property var expressiveSlowSpatialCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveSlowSpatial", [0.34, 1.8, 0.64, 1])
+        readonly property var expressiveFastEffectsCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveFastEffects", [0.22, 1.4, 0.36, 1])
+        readonly property var expressiveDefaultEffectsCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveDefaultEffects", [0.22, 1.4, 0.36, 1])
+        readonly property var expressiveSlowEffectsCurve: Util.get(ConfigLoader.raw, "anim.curves.expressiveSlowEffects", [0.22, 1.4, 0.36, 1])
 
         // Standard and emphasized curves
         readonly property var standardCurve: Util.get(ConfigLoader.raw, "anim.curves.standard", [0.2, 0, 0, 1])
-        readonly property var emphasizedCurve: Util.get(ConfigLoader.raw, "anim.curves.emphasized", [0.34, 1.56, 0.64, 1])
+        readonly property var emphasizedCurve: Util.get(ConfigLoader.raw, "anim.curves.emphasized", [0.34, 1.8, 0.64, 1])
     }
 
     // Font tokens — read from ConfigLoader
