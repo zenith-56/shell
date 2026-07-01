@@ -101,10 +101,6 @@ Item {
                         font.family: Style.font.family
                         font.pixelSize: Style.font.title
                         Layout.alignment: Qt.AlignVCenter
-
-                        Behavior on text {
-                            Anim { type: Anim.FastEffects }
-                        }
                     }
 
                     Rectangle {
@@ -138,10 +134,6 @@ Item {
                         font.bold: true
                         Layout.alignment: Qt.AlignVCenter
                         Layout.minimumWidth: 20
-
-                        Behavior on text {
-                            Anim { type: Anim.FastEffects }
-                        }
                     }
                 }
             }

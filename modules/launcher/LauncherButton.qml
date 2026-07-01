@@ -8,7 +8,7 @@ import "../../Ui"
 Item {
     id: launcherButton
 
-    property Item barWindow: null
+    property var barWindow: null
 
     implicitWidth: Style.font.indicator + 2
     height: BarConfig.height

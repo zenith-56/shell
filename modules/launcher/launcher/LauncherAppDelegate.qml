@@ -1,6 +1,7 @@
 // App list delegate component for the launcher.
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Widgets
 import "../../../Commons"
 import "../../../utils"
@@ -11,6 +12,7 @@ Rectangle {
 
     property bool isSelected: false
     property var appData: null
+    readonly property string iconSource: appData && appData.icon ? Quickshell.iconPath(appData.icon, true) : ""
 
     width: ListView.view.width
     height: 40
@@ -29,8 +31,8 @@ Rectangle {
         IconImage {
             implicitWidth: 24
             implicitHeight: 24
-            source: appData && appData.icon ? "image://icon/" + appData.icon : ""
-            visible: appData && appData.icon !== ""
+            source: root.iconSource
+            visible: source !== ""
         }
 
         Rectangle {
@@ -38,7 +40,7 @@ Rectangle {
             height: 24
             radius: 4
             color: Color.divider
-            visible: !appData || !appData.icon
+            visible: root.iconSource === ""
 
             Text {
                 anchors.centerIn: parent
