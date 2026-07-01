@@ -11,6 +11,8 @@ Item {
     implicitWidth: Style.font.indicator + 2
     height: BarConfig.height
 
+    Component.onCompleted: PopupControl.bluetoothIndicator = bluetooth
+
     Text {
         anchors.centerIn: parent
         text: {

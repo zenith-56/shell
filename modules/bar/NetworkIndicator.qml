@@ -11,6 +11,8 @@ Item {
     implicitWidth: Style.font.indicator + 2
     height: BarConfig.height
 
+    Component.onCompleted: PopupControl.networkIndicator = network
+
     Text {
         anchors.centerIn: parent
         text: Network.connected ? Icons.signalIcon(Network.signalStrength) : Icons.ethernet

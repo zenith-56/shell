@@ -11,6 +11,11 @@ QtObject {
     property real anchorWidth: 0
     property real barHeight: 32
 
+    // Stored references to bar indicators for IPC-triggered popups
+    property Item bluetoothIndicator: null
+    property Item networkIndicator: null
+    property Item batteryIndicator: null
+
     function open(name, triggerItem) {
         if (triggerItem) updateAnchor(triggerItem)
         activePopup = name
@@ -24,7 +29,13 @@ QtObject {
         if (activePopup === name) {
             activePopup = ""
         } else {
-            if (triggerItem) updateAnchor(triggerItem)
+            if (triggerItem) {
+                updateAnchor(triggerItem)
+            } else {
+                // IPC call without trigger — look up stored indicator
+                var ind = _getIndicator(name)
+                if (ind) updateAnchor(ind)
+            }
             activePopup = name
         }
     }
@@ -39,5 +50,12 @@ QtObject {
         var pos = item.mapToItem(window.contentItem, 0, 0)
         anchorX = pos.x
         anchorWidth = item.width
+    }
+
+    function _getIndicator(name) {
+        if (name === "bluetooth") return bluetoothIndicator
+        if (name === "network") return networkIndicator
+        if (name === "battery") return batteryIndicator
+        return null
     }
 }

@@ -11,6 +11,8 @@ Item {
     implicitWidth: Style.font.indicator - 8
     height: BarConfig.height
 
+    Component.onCompleted: PopupControl.batteryIndicator = battery
+
     Text {
         anchors.centerIn: parent
         text: Icons.batteryIcon(Battery.available, Battery.charging, Battery.percentage)
