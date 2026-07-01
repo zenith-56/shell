@@ -2,6 +2,7 @@
 // Instantiates global config, status bar, and top-level popups.
 import Quickshell
 import QtQuick
+import Quickshell.Io
 import "Commons"
 import "services"
 import "modules/bar"
@@ -18,4 +19,27 @@ Scope {
     BluetoothPopup { }
     NetworkPopup { }
     Bar { }
+
+    IpcHandler {
+        target: "shell"
+
+        function togglePopup(name: string): void {
+            if (name === "bluetooth" || name === "network" || name === "battery") {
+                PopupControl.toggle(name, null);
+            } else if (name === "launcher") {
+                if (LauncherState.isOpen) LauncherState.hide();
+                else PopupControl.toggle("launcher", null);
+            }
+        }
+
+        function closeAll(): void {
+            PopupControl.close();
+            LauncherState.hide();
+        }
+
+        function closePopup(name: string): void {
+            if (name === "launcher") LauncherState.hide();
+            else if (PopupControl.activePopup === name) PopupControl.close();
+        }
+    }
 }
