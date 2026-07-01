@@ -26,33 +26,43 @@ NumberAnimation {
     property int type: Anim.DefaultSpatial
 
     duration: {
-        var d = Style.anim
-        if (type === Anim.FastSpatial) return d.fastSpatial
-        if (type === Anim.DefaultSpatial) return d.defaultSpatial
-        if (type === Anim.SlowSpatial) return d.slowSpatial
-        if (type === Anim.FastEffects) return d.fastEffects
-        if (type === Anim.DefaultEffects) return d.defaultEffects
-        if (type === Anim.SlowEffects) return d.slowEffects
-        var durations = [d.small, d.normal, d.large, d.extraLarge]
-        return durations[type % 4]
+        if (type < Anim.StandardSmall || type > Anim.SlowEffects)
+            return Style.anim.normal;
+
+        if (type === Anim.FastSpatial)
+            return Style.anim.expressiveFastSpatial;
+        if (type === Anim.DefaultSpatial)
+            return Style.anim.expressiveDefaultSpatial;
+        if (type === Anim.SlowSpatial)
+            return Style.anim.expressiveSlowSpatial;
+        if (type === Anim.FastEffects)
+            return Style.anim.expressiveFastEffects;
+        if (type === Anim.DefaultEffects)
+            return Style.anim.expressiveDefaultEffects;
+        if (type === Anim.SlowEffects)
+            return Style.anim.expressiveSlowEffects;
+
+        const types = ["small", "normal", "large", "extraLarge"];
+        const idx = type % 4;
+        return Style.anim[types[idx]];
     }
 
-    function _resolveCurve(t) {
-        var a = Style.anim
-        if (t >= Anim.FastSpatial && t <= Anim.SlowSpatial) return a.bezierSpatial
-        if (t >= Anim.FastEffects && t <= Anim.SlowEffects) return a.bezierEffects
-        if (t >= Anim.EmphasizedSmall && t <= Anim.EmphasizedExtraLarge) return a.bezierEmphasized
-        return a.bezierStandard
-    }
+    easing: {
+        if (type === Anim.FastSpatial)
+            return Style.anim.expressiveFastSpatial;
+        if (type === Anim.DefaultSpatial)
+            return Style.anim.expressiveDefaultSpatial;
+        if (type === Anim.SlowSpatial)
+            return Style.anim.expressiveSlowSpatial;
+        if (type === Anim.FastEffects)
+            return Style.anim.expressiveFastEffects;
+        if (type === Anim.DefaultEffects)
+            return Style.anim.expressiveDefaultEffects;
+        if (type === Anim.SlowEffects)
+            return Style.anim.expressiveSlowEffects;
 
-    function _applyCurve() {
-        var c = _resolveCurve(type)
-        if (c && c.length === 4) {
-            easing.type = Easing.BezierSpline
-            easing.bezierCurve = c
-        }
+        if (type >= Anim.EmphasizedSmall && type <= Anim.EmphasizedExtraLarge)
+            return Style.anim.emphasized;
+        return Style.anim.standard;
     }
-
-    onTypeChanged: _applyCurve()
-    Component.onCompleted: _applyCurve()
 }

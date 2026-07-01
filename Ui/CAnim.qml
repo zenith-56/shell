@@ -11,14 +11,14 @@ ColorAnimation {
     duration: {
         var d = Style.anim
         if (animType >= Anim.FastEffects && animType <= Anim.SlowEffects) {
-            var effects = [d.fastEffects, d.defaultEffects, d.slowEffects]
+            var effects = [d.expressiveFastEffects, d.expressiveDefaultEffects, d.expressiveSlowEffects]
             return effects[animType - Anim.FastEffects]
         }
-        return d.defaultEffects
+        return d.expressiveDefaultEffects
     }
 
     function _applyCurve() {
-        var c = Style.anim.bezierEffects
+        var c = Style.anim.expressiveSlowEffects
         if (c && c.length === 4) {
             easing.type = Easing.BezierSpline
             easing.bezierCurve = c

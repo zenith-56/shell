@@ -2,34 +2,43 @@
 import QtQuick
 import "../Commons"
 
-Item {
+Loader {
     id: root
 
-    property url source: ""
-    property alias item: loader.item
+    property Component sourceComp
+    property bool isComplete
+    property int outAnimType: Anim.FastEffects
+    property int inAnimType: Anim.DefaultEffects
 
-    Loader {
-        id: loader
-        anchors.fill: parent
-        source: root.source
-        opacity: 0
-
-        onSourceChanged: {
-            opacity = 0
-            if (status === Loader.Ready) {
-                fadeIn.start()
-            }
-        }
-
-        onLoaded: fadeIn.start()
+    asynchronous: true
+    Component.onCompleted: {
+        isComplete = true;
+        sourceComponent = sourceComp;
+    }
+    onSourceCompChanged: {
+        if (isComplete)
+            anim.restart();
     }
 
-    Anim {
-        id: fadeIn
-        target: loader
-        property: "opacity"
-        from: 0
-        to: 1
-        type: Anim.DefaultEffects
+    SequentialAnimation {
+        id: anim
+
+        running: false
+
+        Anim {
+            target: root
+            property: "opacity"
+            to: 0
+            type: root.outAnimType
+        }
+        ScriptAction {
+            script: root.sourceComponent = root.sourceComp
+        }
+        Anim {
+            target: root
+            property: "opacity"
+            to: 1
+            type: root.inAnimType
+        }
     }
 }
