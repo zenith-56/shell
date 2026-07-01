@@ -63,7 +63,7 @@ Item {
         anchors.right: true
         implicitHeight: 0
         color: "transparent"
-        WlrLayershell.layer: WlrLayer.Top
+        WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "quickshell-osd-helper"
     }
 
